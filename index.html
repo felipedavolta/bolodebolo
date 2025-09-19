@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Sales Report Parser</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="title-container">
+        <h1>Relatório de <span class="title-highlight">Vendas</span> para Planilha</h1>
+        <img src="Logo Bolo de Bolo 2025 Cor Small.png" alt="Logo Bolo de Bolo">
+    </div>
+
+    <div class="container">
+        <!-- Seção Loja -->
+        <div class="report-section">
+            <h2>Relatório Loja</h2>
+            <div class="report-container">
+                <div class="column">
+                    <h3>Cole o relatório da loja aqui:</h3>
+                    <div class="column-content">
+                        <textarea id="input-loja" placeholder="Cole aqui o relatório de vendas da loja..."></textarea>
+                    </div>
+                    <div id="success-loja" class="success-indicator">✓</div>
+                </div>
+                <div class="column">
+                    <h3>Resultado:</h3>
+                    <div class="column-content">
+                        <div id="preview-loja"></div>
+                    </div>
+                    <button id="copyButton-loja" class="button">Copiar Resultado</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção Quiosque -->
+        <div class="report-section">
+            <h2>Relatório Quiosque</h2>
+            <div class="report-container">
+                <div class="column">
+                    <h3>Cole o relatório do quiosque aqui:</h3>
+                    <div class="column-content">
+                        <textarea id="input-quiosque" placeholder="Cole aqui o relatório de vendas do quiosque..."></textarea>
+                    </div>
+                    <div id="success-quiosque" class="success-indicator">✓</div>
+                </div>
+                <div class="column">
+                    <h3>Resultado:</h3>
+                    <div class="column-content">
+                        <div id="preview-quiosque"></div>
+                    </div>
+                    <button id="copyButton-quiosque" class="button">Copiar Resultado</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Adicionar seção de resumo -->
+    <div class="summary-section">
+        <div class="summary-header">
+            <h4>Resumo do dia</h4>
+            <span id="summary-date"></span>
+        </div>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <span class="summary-label">Loja</span>
+                <span class="summary-value" id="summary-loja">0 bolos</span>
+                <span class="summary-value small" id="summary-loja-ifood">(0 iFood)</span>
+                <span class="summary-value" id="summary-loja-valor">R$ 0,00</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Quiosque</span>
+                <span class="summary-value" id="summary-quiosque">0 bolos</span>
+                <span class="summary-value small" id="summary-quiosque-ifood">(0 iFood)</span>
+                <span class="summary-value" id="summary-quiosque-valor">R$ 0,00</span>
+            </div>
+            <div class="summary-item summary-total">
+                <span class="summary-label">Total Geral</span>
+                <span class="summary-value" id="summary-total">0 bolos</span>
+                <span class="summary-value" id="summary-valor-total">R$ 0,00</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="error">Erro ao processar relatório. Verifique o formato.</div>
+    <div id="unknown-bolos" class="unknown-bolos"></div>
+    
+    <div class="dashboard">
+        <div class="dashboard-main">
+            <div class="dashboard-date" id="report-date"></div>
+            <div class="dashboard-section">
+                <h4>Resumo</h4>
+                <div class="dashboard-grid">
+                    <div class="metric-card highlight">
+                        <div class="metric-title">Total de Bolos</div>
+                        <div id="total-bolos" class="metric-value">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Total de Fatias</div>
+                        <div id="total-fatias" class="metric-value">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h4>Bolos por Categoria</h4>
+                <div class="dashboard-grid">
+                    <div class="metric-card small">
+                        <div class="metric-title">Bolos Grandes</div>
+                        <div id="bolos-grandes" class="metric-value">0</div>
+                    </div>
+                    <div class="metric-card small">
+                        <div class="metric-title">Bolos Mini</div>
+                        <div id="bolos-mini" class="metric-value">0</div>
+                    </div>
+                    <div class="metric-card small">
+                        <div class="metric-title">Bolos C</div>
+                        <div id="bolos-c" class="metric-value">0</div>
+                    </div>
+                    <div class="metric-card small">
+                        <div class="metric-title">Bolos Especiais</div>
+                        <div id="bolos-especiais" class="metric-value">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h4>Canais de Venda</h4>
+                <div class="dashboard-grid">
+                    <div class="metric-card">
+                        <div class="metric-title">Bolos Loja</div>
+                        <div id="bolos-loja" class="metric-value">0</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">Bolos iFood</div>
+                        <div id="bolos-ifood" class="metric-value">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="revenue-section">
+            <h4>Faturamento</h4>
+            <div class="revenue-grid">
+                <div class="revenue-item revenue-total">
+                    <span>Total</span>
+                    <span id="revenue-total">R$ 0,00</span>
+                </div>
+                <div class="revenue-item">
+                    <span>Bebidas</span>
+                    <span id="revenue-bebidas">R$ 0,00</span>
+                </div>
+                <div class="revenue-item">
+                    <span>Alimentos</span>
+                    <span id="revenue-alimentos">R$ 0,00</span>
+                </div>
+                <div class="revenue-item">
+                    <span>Bolos</span>
+                    <span id="revenue-bolos">R$ 0,00</span>
+                </div>
+                <div class="revenue-item">
+                    <span>Artigos Festa</span>
+                    <span id="revenue-artigos">R$ 0,00</span>
+                </div>
+                <div class="revenue-item">
+                    <span>Fatias</span>
+                    <span id="revenue-fatias">R$ 0,00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
