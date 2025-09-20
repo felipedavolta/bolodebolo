@@ -1484,13 +1484,13 @@ document.removeEventListener('paste', null);
             });
         });
 
+
         // Handler do botão de colar relatório da loja
         const pasteButtonLoja = document.getElementById('pasteButton-loja');
         if (pasteButtonLoja) {
             pasteButtonLoja.addEventListener('mousedown', async (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                // Safari pode bloquear clipboard sem interação direta, tente fallback
                 if (navigator.clipboard && navigator.clipboard.readText) {
                     try {
                         const text = await navigator.clipboard.readText();
@@ -1500,8 +1500,28 @@ document.removeEventListener('paste', null);
                         alert('Não foi possível acessar a área de transferência. Permita o acesso ao clipboard no navegador.');
                     }
                 } else {
-                    // Fallback: tenta usar execCommand (antigo, mas pode funcionar em alguns browsers)
                     textareaLoja.focus();
+                    document.execCommand('paste');
+                }
+            });
+        }
+
+        // Handler do botão de colar relatório do quiosque
+        const pasteButtonQuiosque = document.getElementById('pasteButton-quiosque');
+        if (pasteButtonQuiosque) {
+            pasteButtonQuiosque.addEventListener('mousedown', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    try {
+                        const text = await navigator.clipboard.readText();
+                        textareaQuiosque.value = text;
+                        textareaQuiosque.dispatchEvent(new Event('input', { bubbles: true }));
+                    } catch (err) {
+                        alert('Não foi possível acessar a área de transferência. Permita o acesso ao clipboard no navegador.');
+                    }
+                } else {
+                    textareaQuiosque.focus();
                     document.execCommand('paste');
                 }
             });
