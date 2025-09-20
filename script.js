@@ -1469,14 +1469,13 @@ document.removeEventListener('paste', null);
             }
         }
 
-        // Atualizar handler do botão de cópia para mostrar feedback visual
+
+        // Handler do botão de cópia para mostrar feedback visual
         copyButtonLoja.addEventListener('click', () => {
             const result = previewLoja.textContent;
             if (!result) return;
-            
             copyButtonLoja.style.background = '#22c55e';
             copyButtonLoja.style.color = 'white';
-            
             copyText(result, copyButtonLoja).finally(() => {
                 setTimeout(() => {
                     copyButtonLoja.style.background = '';
@@ -1484,6 +1483,29 @@ document.removeEventListener('paste', null);
                 }, 2000);
             });
         });
+
+        // Handler do botão de colar relatório da loja
+        const pasteButtonLoja = document.getElementById('pasteButton-loja');
+        if (pasteButtonLoja) {
+            pasteButtonLoja.addEventListener('mousedown', async (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                // Safari pode bloquear clipboard sem interação direta, tente fallback
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    try {
+                        const text = await navigator.clipboard.readText();
+                        textareaLoja.value = text;
+                        textareaLoja.dispatchEvent(new Event('input', { bubbles: true }));
+                    } catch (err) {
+                        alert('Não foi possível acessar a área de transferência. Permita o acesso ao clipboard no navegador.');
+                    }
+                } else {
+                    // Fallback: tenta usar execCommand (antigo, mas pode funcionar em alguns browsers)
+                    textareaLoja.focus();
+                    document.execCommand('paste');
+                }
+            });
+        }
 
         copyButtonQuiosque.addEventListener('click', () => {
             const result = previewQuiosque.textContent;
