@@ -6,53 +6,60 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="title-container">
-        <h1>Relatório de <span class="title-highlight">Vendas</span> para Planilha</h1>
-        <img src="Logo Bolo de Bolo 2025 Cor Small.png" alt="Logo Bolo de Bolo">
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <img src="Logo Bolo de Bolo 2025 Cor Small.png" alt="Logo Bolo de Bolo">
+            <h1>Relatório de <span class="title-highlight">Vendas</span> para Planilha</h1>
+        </div>
+        <div class="top-bar-right">
+            <div class="system-buttons">
+                <a href="https://gestor.raffinato.inf.br/ProdutosFaturados/Relatorio" target="_blank" class="system-link">Sistema Barra Olímpica</a>
+                <a href="https://gestor.raffinatocore.com/report/order/products-sold?companyId=83c2c9da-2384-43ee-8555-e95644c840f5&storeId=dec4ca8f-7ada-42cd-94c0-c95d88e55c2a" target="_blank" class="system-link">Sistema Shopping Millennium</a>
+            </div>
+        </div>
     </div>
 
     <div class="container">
-        <!-- Seção Loja -->
-        <div class="report-section">
-            <h2>Relatório Loja</h2>
-            <div class="report-container">
-                <div class="column">
-                    <h3>Cole o relatório da loja aqui:</h3>
-                    <div class="column-content">
-                        <textarea id="input-loja" placeholder="Cole aqui o relatório de vendas da loja..."></textarea>
-                    </div>
-                    <button id="pasteButton-loja" class="button" type="button" style="margin-top: 8px;">Colar Relatório</button>
-                    <div id="success-loja" class="success-indicator">✓</div>
+        <div class="two-column-grid">
+            <!-- Coluna Barra Olímpica -->
+            <div class="column">
+                <h3>Barra Olímpica</h3>
+                <div class="column-content">
+                    <textarea id="input-loja" placeholder="Cole o relatório da Barra Olímpica aqui..."></textarea>
                 </div>
-                <div class="column">
-                    <h3>Resultado:</h3>
-                    <div class="column-content">
-                        <div id="preview-loja"></div>
-                    </div>
-                    <button id="copyButton-loja" class="button">Copiar Resultado</button>
+                <div class="button-container">
+                    <button id="copyButton-loja" class="button button-disabled">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        <span>Copiar Resultado</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Coluna Shopping Millennium -->
+            <div class="column">
+                <h3>Shopping Millennium</h3>
+                <div class="column-content">
+                    <textarea id="input-quiosque" placeholder="Cole o relatório do Shopping Millennium aqui..."></textarea>
+                </div>
+                <div class="button-container">
+                    <button id="copyButton-quiosque" class="button button-disabled">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        <span>Copiar Resultado</span>
+                    </button>
                 </div>
             </div>
         </div>
-
-        <!-- Seção Quiosque -->
-        <div class="report-section">
-            <h2>Relatório Quiosque</h2>
-            <div class="report-container">
-                <div class="column">
-                    <h3>Cole o relatório do quiosque aqui:</h3>
-                    <div class="column-content">
-                        <textarea id="input-quiosque" placeholder="Cole aqui o relatório de vendas do quiosque..."></textarea>
-                    </div>
-                    <div id="success-quiosque" class="success-indicator">✓</div>
-                </div>
-                <div class="column">
-                    <h3>Resultado:</h3>
-                    <div class="column-content">
-                        <div id="preview-quiosque"></div>
-                    </div>
-                    <button id="copyButton-quiosque" class="button">Copiar Resultado</button>
-                </div>
-            </div>
+        
+        <!-- Preview areas hidden but kept for internal processing -->
+        <div style="display: none;">
+            <div id="preview-loja"></div>
+            <div id="preview-quiosque"></div>
         </div>
     </div>
 
@@ -64,13 +71,13 @@
         </div>
         <div class="summary-grid">
             <div class="summary-item">
-                <span class="summary-label">Loja</span>
+                <span class="summary-label">Barra Olímpica</span>
                 <span class="summary-value" id="summary-loja">0 bolos</span>
                 <span class="summary-value small" id="summary-loja-ifood">(0 iFood)</span>
                 <span class="summary-value" id="summary-loja-valor">R$ 0,00</span>
             </div>
             <div class="summary-item">
-                <span class="summary-label">Quiosque</span>
+                <span class="summary-label">Shopping Millennium</span>
                 <span class="summary-value" id="summary-quiosque">0 bolos</span>
                 <span class="summary-value small" id="summary-quiosque-ifood">(0 iFood)</span>
                 <span class="summary-value" id="summary-quiosque-valor">R$ 0,00</span>
@@ -170,7 +177,22 @@
             </div>
         </div>
     </div>
-    
+
+    <div id="last-modified" class="last-modified" aria-label="Data da última atualização"></div>
+
     <script src="script.js"></script>
+    <script>
+        (function() {
+            try {
+                var el = document.getElementById('last-modified');
+                if (!el) return;
+                // Tenta usar a data de última modificação do documento; fallback para hoje
+                var dm = new Date(document.lastModified);
+                var dateObj = isNaN(dm.getTime()) ? new Date() : dm;
+                var formatted = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                el.textContent = 'Atualizado em ' + formatted;
+            } catch (e) { /* silencioso */ }
+        })();
+    </script>
 </body>
 </html>

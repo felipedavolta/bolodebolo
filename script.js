@@ -6,26 +6,25 @@ function escapeRegExp(string) {
 function parseValue(value) {
     if (typeof value === 'number') return value;
     if (typeof value !== 'string') return 0;
+
     // Remove parentheses and content within them (e.g., percentages)
-    value = value.replace(/\\s*\\(.*\\)/g, '').trim();
-    // Normalize decimal and thousands separators
-    // If it contains a comma and a dot, assume dot is thousands and comma is decimal (e.g., 1.234,56)
-    if (value.includes(',') && value.includes('.')) {
-        if (value.lastIndexOf('.') < value.lastIndexOf(',')) {
-            // Dot is thousands, comma is decimal
-            value = value.replace(/\\./g, '').replace(',', '.');
-        } else {
-            // Comma is thousands, dot is decimal
-            value = value.replace(/,/g, '');
-        }
+    value = value.replace(/\s*\([\s\S]*?\)/g, '').trim();
+
+    // Handle Brazilian currency format (e.g., "6.741,01")
+    // Check if the last comma is followed by exactly two digits and there's a dot before it
+    if (value.includes('.') && /,\d{2}$/.test(value)) {
+        value = value.replace(/\./g, '').replace(',', '.');
     } else {
-        // Only comma or only dot (or neither)
-        value = value.replace(',', '.'); // Assume comma is decimal if it's the only one
+        // Handle cases like "1,000" (as quantity) or "4,00" (as value)
+        // This will also handle "1.000" correctly by just parsing it.
+        value = value.replace(',', '.');
     }
+
     const num = parseFloat(value);
     return isNaN(num) ? 0 : num;
 }
 
+// Lista base de bolos (Quiosque): pares [regular, ifood]
 const bolosList = [
     ['BOLO AIPIM', 'BOLO AIPIM I'],
     ['BOLO AMENDOIM', 'BOLO AMENDOIM I'],
@@ -41,6 +40,7 @@ const bolosList = [
     ['BOLO CENOURA C', 'BOLO CENOURA C I'],
     ['BOLO CHOCOLATE', 'BOLO CHOCOLATE I'],
     ['BOLO CHOCOLATE MINI', 'BOLO CHOCOLATE MINI I'],
+    ['BOLO CHOCOLATE C', 'BOLO CHOCOLATE C I'],
     ['BOLO CHUVA', 'BOLO CHUVA I'],
     ['BOLO CHUVA MINI', 'BOLO CHUVA MINI I'],
     ['BOLO COCO', 'BOLO COCO I'],
@@ -49,6 +49,7 @@ const bolosList = [
     ['BOLO FORMIGUEIRO MINI', 'BOLO FORMIGUEIRO MINI I'],
     ['BOLO FUBÁ', 'BOLO FUBÁ I'],
     ['BOLO FUBÁ MINI', 'BOLO FUBÁ MINI I'],
+    ['BOLO FUBÁ C', 'BOLO FUBÁ C I'],
     ['BOLO LARANJA', 'BOLO LARANJA I'],
     ['BOLO LARANJA MINI', 'BOLO LARANJA MINI I'],
     ['BOLO LARANJA C', 'BOLO LARANJA C I'],
@@ -62,6 +63,7 @@ const bolosList = [
     ['BOLO NOZES MINI', 'BOLO NOZES MINI I']
 ];
 
+// Bolos especiais (sem variante iFood mapeada)
 const specialBolos = [
     'BOLO SF BOLO DE BOLO',
     'BOLO SF CENOURA',
@@ -70,61 +72,6 @@ const specialBolos = [
     'BOLO AIPIM TABULEIRO',
     'BOLINHO PRESENTE'
 ];
-
-function getTotalFromSection(text, sectionName) {
-    const sectionRegex = new RegExp(`${sectionName}[\\s\\S]*?Total[^\\n]*?(\\d+[.,]\\d+)`, 'g');
-    let lastTotal = 0;
-    let match;
-    
-    // Encontrar todas as ocorrências e pegar a última
-    while ((match = sectionRegex.exec(text)) !== null) {
-        lastTotal = parseValue(match[1]);
-    }
-    
-    return lastTotal;
-}
-
-function extractSectionTotal(text, sectionName) {
-    // Parser linha a linha robusto
-    const lines = text.split(/\r?\n/);
-    let inSection = false;
-    let lastTotal = 0;
-    const sectionNameUpper = sectionName.toUpperCase();
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
-        // Detecta início da seção (linha igual ao nome, ignorando espaços)
-        if (line.replace(/\s+/g, ' ').toUpperCase() === sectionNameUpper) {
-            inSection = true;
-            continue;
-        }
-        // Se não encontrou a seção exatamente, tenta encontrar por substring
-        if (!inSection && line.toUpperCase().includes(sectionNameUpper)) {
-            inSection = true;
-            continue;
-        }
-        // Detecta início de nova seção (linha toda em maiúsculas, pelo menos 3 letras, diferente da seção atual)
-        if (inSection && /^[A-ZÁ-Ú ]{3,}$/.test(line) && !line.toUpperCase().includes(sectionNameUpper)) {
-            break;
-        }
-        // Se estiver na seção, procura por linha 'Total ...'
-        if (inSection && line.toUpperCase().startsWith('TOTAL') && !line.includes('Totalizadores Gerais') && !line.includes('Total Geral')) {
-            // Pega o último número da linha
-            const values = line.match(/[\d.,]+/g);
-            if (values && values.length) {
-                lastTotal = parseValue(values[values.length - 1]);
-            }
-        }
-    }
-    if (!lastTotal) {
-        console.warn('Seção não encontrada ou sem total:', sectionName);
-        // Log para debug: mostrar as linhas do relatório
-        console.warn('Primeiras linhas do relatório:', lines.slice(0, 20).join('\n'));
-        console.warn('Últimas linhas do relatório:', lines.slice(-20).join('\n'));
-    } else {
-        console.log('Seção:', sectionName, '| Valor extraído:', lastTotal);
-    }
-    return lastTotal;
-}
 
 function extractValueByLabel(text, label, isCurrency = false, isQuantity = false) {
     if (!text || !label) return isCurrency || isQuantity ? 0 : '';
@@ -421,74 +368,46 @@ function extractFaturamentoQuiosque(text, categoria) {
 
 function processSalesReport(text) {
     try {
-        // Inicialização de variáveis
-        let result = Array(60).fill('');
-        let bolosRegular = {};
-        let bolosIfood = {};
-        let currentSection = '';
-        
-        // Totalizadores de fatias
+        // Inicializações necessárias (acumuladores e containers)
+        const bolosRegular = {};
+        const bolosIfood = {};
+        const result = [];
         let fatiasRegularQtd = 0;
         let fatiaIntegralQtd = 0;
         let fatiaAipimQtd = 0;
         let quadradinhoQtd = 0;
-        // let fatiasFaturamentoTotal = 0; // This will be derived from new faturamento logic
-
-        // Outros totalizadores de quantidade (manter para stats de quantidade)
-        // let bolosTotal = 0; // Refers to revenue, will be replaced by faturamentoBolosCombinado
-        // let bolosIfoodTotal = 0; // Refers to revenue, will be replaced
-        // let bebidasTotal = 0; // Refers to revenue, will be replaced by faturamentoBebidas
-        // let alimentosTotal = 0; // Refers to revenue, will be replaced by faturamentoAlimentos
-        // let artigosFesta = 0; // Refers to revenue, will be replaced by faturamentoArtigosFesta
-        // let fatiasCategoryTotal = 0; // Refers to revenue, will be replaced by faturamentoFatias
-        // let acrescimo = 0; // Refers to revenue, will be replaced by faturamentoAcrescimo
-        // let desconto = 0; // Refers to revenue, will be replaced by faturamentoDesconto
-        let totalGeral = 0; 
-
-        // NEW: Declare faturamento variables in the outer scope of processSalesReport
+        let faturamentoText = '';
+        let acrescimosDescontosText = '';
         let faturamentoBebidas = 0;
         let faturamentoAlimentos = 0;
-        let faturamentoBolosCombinado = 0; // For BOLOS + BOLOS IFOOD
+        let faturamentoBolosCombinado = 0;
         let faturamentoArtigosFesta = 0;
         let faturamentoFatias = 0;
         let faturamentoAcrescimo = 0;
         let faturamentoDesconto = 0;
-
-        // NEW: Extract faturamento sections and values early
-        console.log("[Faturamento Quiosque] Iniciando extração de faturamento principal.");
-        let faturamentoText = '';
-        let acrescimosDescontosText = '';
-
-        // Debug: log potential section headers
-        const potentialHeaders = text.match(/^[A-ZÁÉÍÓÚ][A-ZÁÉÍÓÚ\s]{10,}$/gm);
-        if (potentialHeaders) {
-            console.log("[Faturamento Quiosque] Possíveis cabeçalhos de seção encontrados:", potentialHeaders.slice(0, 20));
-        }
-
-        // Strategy 1: Look for standard faturamento sections
-        const faturamentoCategoriaRegex = /Faturamento por Categoria de Produto([\\s\\S]*?)(?=Acréscimos e Descontos|Totalizadores Gerais|Total da Operação|Nome Fantasia|$)/i;
-        const faturamentoMatch = text.match(faturamentoCategoriaRegex);
-        if (faturamentoMatch && faturamentoMatch[1]) {
-            faturamentoText = faturamentoMatch[1].trim();
-            console.log("[Faturamento Quiosque] Bloco 'Faturamento por Categoria de Produto' encontrado:", `\\n---\\n${faturamentoText}\\n---`);
-        } else {
-            console.warn("[Faturamento Quiosque] Bloco 'Faturamento por Categoria de Produto' NÃO encontrado.");
-            
-            // Strategy 2: Try alternative patterns
-            const altPatterns = [
-                /Faturamento([\\s\\S]*?)(?=Acréscimos|Totalizadores|Total|Nome Fantasia|$)/i,
-                /FATURAMENTO([\\s\\S]*?)(?=ACRÉSCIMOS|TOTALIZADORES|TOTAL|NOME FANTASIA|$)/i,
-                /Categorias de Produto([\\s\\S]*?)(?=Acréscimos|Totalizadores|Total|$)/i
-            ];
-            
-            for (let pattern of altPatterns) {
-                const altMatch = text.match(pattern);
-                if (altMatch && altMatch[1]) {
-                    faturamentoText = altMatch[1].trim();
-                    console.log("[Faturamento Quiosque] Bloco alternativo encontrado:", `\\n---\\n${faturamentoText}\\n---`);
-                    break;
-                }
-            }
+        let totalGeral = 0;
+        let revenueStart = 53; // posição do bloco de faturamento no resultado
+        let currentSection = 'BOLOS';
+        // Datas e dia do mês (a partir do cabeçalho "Data: dd/mm/yyyy ... à dd/mm/yyyy ...")
+        let dateStartISO = null;
+        let dateEndISO = null;
+        let reportDayNumber = '';
+        try {
+            const dataMatch = text.match(/Data:\s*(\d{1,2}\/\d{1,2}\/\d{4})\s*-\s*\d{2}:\d{2}:\d{2}\s*à\s*(\d{1,2}\/\d{1,2}\/\d{4})\s*-\s*\d{2}:\d{2}:\d{2}/i);
+            const startBR = dataMatch?.[1] || null;
+            const endBR = dataMatch?.[2] || null;
+            const toISO = (br) => {
+                if (!br) return null;
+                const [d, m, y] = br.split('/').map(n => parseInt(n, 10));
+                if (!y || !m || !d) return null;
+                return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            };
+            dateStartISO = toISO(startBR);
+            dateEndISO = toISO(endBR);
+            const dayStr = (endBR || startBR || '').split('/')[0];
+            if (dayStr) reportDayNumber = String(parseInt(dayStr, 10));
+        } catch (e) {
+            console.warn('[Quiosque] Falha ao extrair data do cabeçalho.');
         }
 
         // Strategy 3: If no dedicated faturamento section, try to extract from entire text
@@ -548,6 +467,15 @@ function processSalesReport(text) {
         console.log(`  Artigos Festa: ${faturamentoArtigosFesta}`);
         console.log(`  Fatias: ${faturamentoFatias}`);
         
+        // ALIMENTOS inclui GANACHE, que deve ser contado separadamente de ALIMENTOS proper
+        // Se ALIMENTOS for o total da seção que inclui GANACHEs, precisamos ajustar
+        // No quiosque, ALIMENTOS = apenas alimentos. GANACHE vem listado mas não deve ir para "ALIMENTOS" final
+        // Ajuste: se faturamentoAlimentos incluir ganache, subtrair
+        // Melhor: renomear a seção para não confundir
+        // Para este relatório, a seção "ALIMENTOS" contém apenas GANACHEs
+        // Vamos tratar isso como categoria separada ou incluir em BOLOS?
+        // Decisão: manter ALIMENTOS como está, pois é uma categoria válida do relatório
+        
         // If specific function didn't work, try section-based extraction
         if (faturamentoBebidas === 0 && faturamentoAlimentos === 0 && faturamentoBolosCombinado === 0) {
             console.log("[Faturamento Quiosque] Função específica falhou, tentando extração por seção...");
@@ -570,17 +498,43 @@ function processSalesReport(text) {
         }
         
         // Extract from totalizadores gerais or acréscimos/descontos section
-        faturamentoAcrescimo = extractTotalizadorValue(text, 'acréscimo de pedidos') || 
-                              extractFaturamentoQuiosque(text, 'acréscimo') ||
-                              extractValueByLabel(text, 'acréscimo', true);
+        // Procura especificamente na linha "Valor total de acréscimo de pedidos"
+        const acrescimoMatch = text.match(/Valor\s+total\s+de\s+acr[ée]scimo\s+de\s+pedidos[^\d]+([\d.,]+)/i);
+        faturamentoAcrescimo = acrescimoMatch ? parseValue(acrescimoMatch[1]) : 0;
         
-        faturamentoDesconto = extractTotalizadorValue(text, 'desconto de pedidos') || 
-                             extractFaturamentoQuiosque(text, 'desconto') ||
-                             extractValueByLabel(text, 'desconto', true);
+        // Procura especificamente na linha "Valor total de desconto de pedidos"  
+        const descontoMatch = text.match(/Valor\s+total\s+de\s+desconto\s+de\s+pedidos[^\d]+([\d.,]+)/i);
+        faturamentoDesconto = descontoMatch ? parseValue(descontoMatch[1]) : 0;
         
+        console.log(`[Acréscimo/Desconto] Acréscimo: ${faturamentoAcrescimo}, Desconto: ${faturamentoDesconto}`);
+        
+        // Fallback dedicado para "Total Geral" em qualquer lugar do texto
+        function extractTotalGeralAnywhere(t) {
+            const m = t.match(/Total\s+Geral\s*[:\-]?\s*([\d.,]+)/i);
+            return m && m[1] ? parseValue(m[1]) : 0;
+        }
+
         totalGeral = extractTotalizadorValue(text, 'Total Geral') || 
+                    extractTotalGeralAnywhere(text) ||
                     extractTotalizadorValue(text, 'total de produtos vendidos') ||
                     extractValueByLabel(text, 'Total Geral', true);
+
+        // Extrator mais rígido para "Total Geral" com milhar e decimal
+        function extractTotalGeralStrict(t) {
+            // Procura por "Total Geral" seguido de um número no formato BR (ex: 6.741,01)
+            const m = t.match(/Total\s+Geral[^\d]+((?:\d{1,3}\.)*\d{1,3},\d{2})/i);
+            if (m && m[1]) {
+                const parsed = parseValue(m[1]);
+                console.log(`[Total Geral Strict] Capturado: "${m[1]}" → parsed: ${parsed}`);
+                return parsed;
+            }
+            return 0;
+        }
+        const strictTG = extractTotalGeralStrict(text);
+        if (strictTG > 0) {
+            totalGeral = strictTG;
+            console.log(`[Total Geral] Usando valor strict: ${totalGeral}`);
+        }
         
         console.log(`[Faturamento Quiosque] Acréscimos/Descontos extraídos:`);
         console.log(`  Acréscimo: ${faturamentoAcrescimo}`);
@@ -691,6 +645,10 @@ function processSalesReport(text) {
             // Grupo 3: Fatia Aipim
             if (n === 'FATIA AIPIM' || n === 'FATIA DE AIPIM' || n === 'FATIA DE BOLO DE AIPIM' || n === 'FATIA BOLO AIPIM') return 'FATIA AIPIM';
 
+            // Normalização de bolos integrais para mapeamento do template
+            if (n === 'BOLO INTEGRAL BANANA E AVEIA') return 'BOLO BANANA AVEIA';
+            if (n === 'BOLO INTEGRAL BANANA E AVEIA I') return 'BOLO BANANA AVEIA I';
+
             return n;
         }
 
@@ -790,56 +748,71 @@ function processSalesReport(text) {
 
         // Função local para gerar saída
         function generateOutput() {
-            // Preencher quantidades de bolos (loja + ifood) na ordem correta
+            // 1) Bolos (loja + iFood) na ordem do template
             bolosList.forEach(([regular, ifood], index) => {
                 const regularQty = bolosRegular[regular] || 0;
                 const ifoodQty = bolosIfood[ifood] || 0;
-                result[index] = (regularQty + ifoodQty).toString(); // Sempre número, mesmo que zero
+                result[index] = (regularQty + ifoodQty).toString();
             });
 
-            // Preencher bolos especiais
-            specialBolos.forEach((bolo, index) => {
-                result[33 + index] = (bolosRegular[bolo] || 0).toString(); // Sempre número
+            // 2) Bolos especiais logo após os regulares
+            let idx = bolosList.length;
+            specialBolos.forEach((bolo, sIndex) => {
+                result[idx + sIndex] = (bolosRegular[bolo] || 0).toString();
             });
+            idx += specialBolos.length;
 
-            result[39] = '';
+            // 3) Linha em branco
+            result[idx++] = '';
 
-            // Ganaches e brigadeiro
-            result[40] = (bolosRegular['GANACHE 200G'] || 0).toString();
-            result[41] = (bolosRegular['GANACHE 100G'] || 0).toString();
-            result[42] = (bolosIfood['GANACHE 200G I'] || 0).toString();
-            result[43] = (bolosIfood['GANACHE 100G I'] || 0).toString();
-            result[44] = (bolosRegular['BRIGADEIRO'] || 0).toString();
+            // 4) Ganaches e brigadeiro
+            result[idx++] = (bolosRegular['GANACHE 200G'] || 0).toString();
+            result[idx++] = (bolosRegular['GANACHE 100G'] || 0).toString();
+            result[idx++] = (bolosIfood['GANACHE 200G I'] || 0).toString();
+            result[idx++] = (bolosIfood['GANACHE 100G I'] || 0).toString();
+            result[idx++] = (bolosRegular['BRIGADEIRO'] || 0).toString();
 
-            // Fatias
-            result[45] = fatiasRegularQtd.toString();
-            result[46] = fatiaIntegralQtd.toString();
-            result[47] = fatiaAipimQtd.toString();
-            result[48] = quadradinhoQtd.toString();
+            // 5) Fatias
+            result[idx++] = fatiasRegularQtd.toString();
+            result[idx++] = fatiaIntegralQtd.toString();
+            result[idx++] = fatiaAipimQtd.toString();
+            result[idx++] = quadradinhoQtd.toString();
 
-            // Linhas em branco
-            result[49] = '';
-            result[50] = '';
-            result[51] = '';
-            result[52] = '';
+            // 6) Após quadradinho: pular 1 linha, dia do mês (número), pular 1 linha
+            result[idx++] = '';
+            result[idx++] = reportDayNumber || '';
+            result[idx++] = '';
 
-            // Faturamento - uses pre-calculated faturamentoXXX values
-            result[53] = faturamentoBebidas.toFixed(2);
-            result[54] = faturamentoAlimentos.toFixed(2);
-            result[55] = faturamentoBolosCombinado.toFixed(2);
-            result[56] = faturamentoArtigosFesta.toFixed(2);
-            result[57] = faturamentoFatias.toFixed(2);
-            result[58] = faturamentoAcrescimo.toFixed(2);
-            result[59] = (-Math.abs(faturamentoDesconto)).toFixed(2);
-            
-            console.log("[Faturamento Quiosque generateOutput] Valores formatados para o resultado (clipboard):");
-            console.log(`  result[53] (BEBIDAS): ${result[53]}`);
-            console.log(`  result[54] (ALIMENTOS): ${result[54]}`);
-            console.log(`  result[55] (BOLO total): ${result[55]}`);
-            console.log(`  result[56] (ARTIGOS FESTA): ${result[56]}`);
-            console.log(`  result[57] (FATIAS): ${result[57]}`);
-            console.log(`  result[58] (ACRÉSCIMO): ${result[58]}`);
-            console.log(`  result[59] (DESCONTO): ${result[59]}`);
+            // 7) Faturamento - TOTAL (Total Geral do relatório) + categorias
+            revenueStart = idx;
+            const totalFaturamentoCalculado = (
+                (faturamentoBebidas || 0) +
+                (faturamentoAlimentos || 0) +
+                (faturamentoBolosCombinado || 0) +
+                (faturamentoArtigosFesta || 0) +
+                (faturamentoFatias || 0) +
+                (faturamentoAcrescimo || 0) +
+                (-(Math.abs(faturamentoDesconto || 0)))
+            );
+            const totalParaSaida = (totalGeral && totalGeral > 0) ? totalGeral : totalFaturamentoCalculado;
+            result[idx++] = totalParaSaida.toFixed(2); // TOTAL DO DIA (preferir Total Geral extraído)
+            result[idx++] = (faturamentoBebidas || 0).toFixed(2);
+            result[idx++] = (faturamentoAlimentos || 0).toFixed(2);
+            result[idx++] = (faturamentoBolosCombinado || 0).toFixed(2);
+            result[idx++] = (faturamentoArtigosFesta || 0).toFixed(2);
+            result[idx++] = (faturamentoFatias || 0).toFixed(2);
+            result[idx++] = (faturamentoAcrescimo || 0).toFixed(2);
+            result[idx++] = (-Math.abs(faturamentoDesconto || 0)).toFixed(2);
+
+            console.log('[Faturamento Quiosque generateOutput] Índice inicial do faturamento (TOTAL):', revenueStart);
+            console.log(`  TOTAL: ${result[revenueStart + 0]}`);
+            console.log(`  BEBIDAS: ${result[revenueStart + 1]}`);
+            console.log(`  ALIMENTOS: ${result[revenueStart + 2]}`);
+            console.log(`  BOLOS: ${result[revenueStart + 3]}`);
+            console.log(`  ARTIGOS FESTA: ${result[revenueStart + 4]}`);
+            console.log(`  FATIAS: ${result[revenueStart + 5]}`);
+            console.log(`  ACRÉSCIMO: ${result[revenueStart + 6]}`);
+            console.log(`  DESCONTO: ${result[revenueStart + 7]}`);
         }
 
         // Processamento do relatório
@@ -1034,6 +1007,7 @@ document.removeEventListener('paste', null);
             ['BOLO CENOURA C', 'BOLO CENOURA C I'],
             ['BOLO CHOCOLATE', 'BOLO CHOCOLATE I'],
             ['BOLO CHOCOLATE MINI', 'BOLO CHOCOLATE MINI I'],
+            ['BOLO CHOCOLATE C', 'BOLO CHOCOLATE C I'],
             ['BOLO CHUVA', 'BOLO CHUVA I'],
             ['BOLO CHUVA MINI', 'BOLO CHUVA MINI I'],
             ['BOLO COCO', 'BOLO COCO I'],
@@ -1042,6 +1016,7 @@ document.removeEventListener('paste', null);
             ['BOLO FORMIGUEIRO MINI', 'BOLO FORMIGUEIRO MINI I'],
             ['BOLO FUBÁ', 'BOLO FUBÁ I'],
             ['BOLO FUBÁ MINI', 'BOLO FUBÁ MINI I'],
+            ['BOLO FUBÁ C', 'BOLO FUBÁ C I'],
             ['BOLO LARANJA', 'BOLO LARANJA I'],
             ['BOLO LARANJA MINI', 'BOLO LARANJA MINI I'],
             ['BOLO LARANJA C', 'BOLO LARANJA C I'],
@@ -1074,16 +1049,69 @@ document.removeEventListener('paste', null);
         // Função auxiliar para copiar texto
         async function copyText(text, button) {
             try {
+                // Tenta usar a API moderna do clipboard
                 await navigator.clipboard.writeText(text);
-                button.textContent = 'Copiado!';
-                setTimeout(() => {
-                    button.textContent = 'Copiar Resultado';
-                }, 2000);
+                
+                // Estado 3: Copiado - borda verde (fica até mudança no textarea)
+                const span = button.querySelector('span');
+                if (span) span.textContent = 'Copiado!';
+                button.classList.remove('button-disabled', 'button-ready');
+                button.classList.add('button-copied');
+                button.style.animation = '';
+                button.style.transform = '';
+                
                 return true;
             } catch (err) {
-                console.error('Falha ao copiar:', err);
+                console.warn('Clipboard API falhou (provavelmente Safari):', err);
+                
+                // Fallback para método antigo (funciona melhor no Safari)
+                try {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    textArea.style.position = 'fixed';
+                    textArea.style.left = '-999999px';
+                    textArea.style.top = '-999999px';
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    
+                    const successful = document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    if (successful) {
+                        // Estado 3: Copiado - borda verde (fica até mudança no textarea)
+                        const span = button.querySelector('span');
+                        if (span) span.textContent = 'Copiado!';
+                        button.classList.remove('button-disabled', 'button-ready');
+                        button.classList.add('button-copied');
+                        button.style.animation = '';
+                        button.style.transform = '';
+                        
+                        return true;
+                    }
+                } catch (fallbackErr) {
+                    console.error('Todos os métodos de cópia falharam:', fallbackErr);
+                }
+                
                 return false;
             }
+        }
+        
+        function highlightCopyButton(button) {
+            // Estado 2: Pronto - verde com animação
+            // Só muda para "pronto" se não estiver no estado "copiado"
+            if (!button.classList.contains('button-copied')) {
+                button.classList.remove('button-disabled');
+                button.classList.add('button-ready');
+            }
+        }
+        
+        function resetButtonToReady(button) {
+            // Volta ao estado "pronto" quando o textarea é modificado
+            const span = button.querySelector('span');
+            if (span) span.textContent = 'Copiar Resultado';
+            button.classList.remove('button-disabled', 'button-copied');
+            button.classList.add('button-ready');
         }
 
         function clearDashboard() {
@@ -1104,12 +1132,58 @@ document.removeEventListener('paste', null);
             previewQuiosque.textContent = '';
             errorDiv.style.display = 'none';
             unknownBolosDiv.style.display = 'none';
-            document.getElementById('success-quiosque').classList.remove('visible');
             clearDashboard();
+            
+            // Se estava copiado, volta ao estado "pronto"
+            if (copyButtonQuiosque.classList.contains('button-copied')) {
+                resetButtonToReady(copyButtonQuiosque);
+            }
             
             try {
                 const text = textareaQuiosque.value;
-                if (!text.trim()) return;
+                if (!text.trim()) {
+                    // Sem texto, botão volta ao estado desabilitado
+                    copyButtonQuiosque.classList.remove('button-ready', 'button-copied');
+                    copyButtonQuiosque.classList.add('button-disabled');
+                    return;
+                }
+
+                // Verifica se não é o resultado já processado (apenas números e valores)
+                const lines = text.trim().split('\n').filter(l => l.trim());
+                const numbersOnly = lines.every(line => {
+                    const trimmed = line.trim();
+                    return /^[\d.,]+$/.test(trimmed) || trimmed === '';
+                });
+                
+                if (numbersOnly && lines.length > 10) {
+                    throw new Error('Este parece ser um resultado já processado. Cole o relatório original do sistema.');
+                }
+                
+                // Verifica se não é relatório da Barra Olímpica (Raffinato)
+                if (text.includes('Vendas:') && text.includes('Desconto:') && text.includes('Acréscimo:') && 
+                    !text.includes('Total Geral') && !text.includes('Totalizadores Gerais')) {
+                    // Cola automaticamente no campo correto
+                    textareaQuiosque.value = '';
+                    textareaLoja.value = text;
+                    
+                    // Feedback visual no campo correto
+                    textareaLoja.classList.add('textarea-success');
+                    setTimeout(() => textareaLoja.classList.remove('textarea-success'), 1000);
+                    
+                    // Mostra notificação
+                    errorDiv.textContent = '✓ Relatório da Barra Olímpica movido para o campo correto!';
+                    errorDiv.style.display = 'block';
+                    errorDiv.style.background = 'var(--green-light)';
+                    errorDiv.style.color = 'var(--green-text)';
+                    setTimeout(() => {
+                        errorDiv.style.display = 'none';
+                        errorDiv.style.background = '';
+                        errorDiv.style.color = '';
+                    }, 3000);
+                    
+                    processInputLoja();
+                    return;
+                }
 
                 const { result, stats } = processSalesReport(text);
 
@@ -1130,22 +1204,36 @@ document.removeEventListener('paste', null);
                     // Atualiza o resumo do dashboard (parte de baixo)
                     document.getElementById('summary-quiosque').textContent = `${totalBolos + totalBolosIf} bolos`;
                     document.getElementById('summary-quiosque-ifood').textContent = `(${totalBolosIf} iFood)`;
+                    // Exibir como moeda BR: R$ 1.554,00
                     document.getElementById('summary-quiosque-valor').textContent = `R$ ${totalFaturado.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
                     // Atualiza o total geral (soma dos dois)
                     updateSummaryTotal();
+                    
+                    // Destaca o botão para o usuário clicar (Safari não permite cópia automática)
+                    highlightCopyButton(copyButtonQuiosque);
 
-                    document.getElementById('success-quiosque').classList.add('visible');
-                    copyText(result, copyButtonQuiosque);
                     if (stats.unknownBolos?.length > 0) {
                         unknownBolosDiv.textContent = `Novo(s) sabor(es) identificado(s): ${stats.unknownBolos.join(', ')}. Não contabilizado(s) no resultado.`;
                         unknownBolosDiv.style.display = 'block';
                     }
+                } else {
+                    // Resultado inválido, desabilita o botão e vibra o campo
+                    copyButtonQuiosque.classList.remove('button-ready', 'button-copied');
+                    copyButtonQuiosque.classList.add('button-disabled');
+                    textareaQuiosque.classList.add('textarea-error');
+                    setTimeout(() => textareaQuiosque.classList.remove('textarea-error'), 500);
                 }
             } catch (err) {
                 console.error('Erro:', err);
                 errorDiv.textContent = err.message || 'Erro ao processar relatório. Verifique o formato.';
                 errorDiv.style.display = 'block';
+                
+                // Em caso de erro, desabilita o botão e vibra o campo
+                copyButtonQuiosque.classList.remove('button-ready', 'button-copied');
+                copyButtonQuiosque.classList.add('button-disabled');
+                textareaQuiosque.classList.add('textarea-error');
+                setTimeout(() => textareaQuiosque.classList.remove('textarea-error'), 500);
             }
         }
 
@@ -1172,6 +1260,40 @@ document.removeEventListener('paste', null);
                     desconto: parseFloat(descontoMatch[1].replace('.', '').replace(',', '.') || 0),
                     acrescimo: parseFloat(acrescimoMatch[1].replace('.', '').replace(',', '.') || 0)
                 };
+
+                // Extrair datas (Data Inicial / Data Final) do relatório para usar no dia do mês e no dashboard
+                let dateStartISO = null;
+                let dateEndISO = null;
+                let reportDayNumber = null;
+                try {
+                    // Padrão: a linha "Data Inicial" seguida pela data na próxima linha
+                    const diMatch = text.match(/Data\s*Inicial[^\n]*\n\s*(\d{1,2}\/\d{1,2}\/\d{4})/i);
+                    const dfMatch = text.match(/Data\s*Final[^\n]*\n\s*(\d{1,2}\/\d{1,2}\/\d{4})/i);
+
+                    function toISO(brDate) {
+                        if (!brDate) return null;
+                        const [d, m, y] = brDate.split('/').map(n => parseInt(n, 10));
+                        if (!y || !m || !d) return null;
+                        return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    }
+
+                    const di = diMatch?.[1] || null;
+                    const df = dfMatch?.[1] || null;
+                    dateStartISO = toISO(di);
+                    dateEndISO = toISO(df);
+
+                    // Escolha do dia do mês: se Data Final existir, usa ela; senão, usa Data Inicial; senão, dia atual
+                    if (df) {
+                        reportDayNumber = String(parseInt(df.split('/')[0], 10));
+                    } else if (di) {
+                        reportDayNumber = String(parseInt(di.split('/')[0], 10));
+                    } else {
+                        reportDayNumber = String(new Date().getDate());
+                    }
+                } catch (e) {
+                    console.warn('Falha ao extrair datas do relatório, usando data atual para o dia do mês.');
+                    reportDayNumber = String(new Date().getDate());
+                }
 
                 function parseItems(text) {
                     if (!text) return [];
@@ -1315,8 +1437,9 @@ document.removeEventListener('paste', null);
                     result += (item?.quantity || 0).toString() + '\n';
                 });
 
-                // Add 4 blank lines before revenue
-                result += '\n\n\n\n';
+                // Add: blank line, day-of-month number (do relatório), then THREE blank lines before revenue
+                // DIA DO MÊS (ex.: "2" para 2/11/2025)
+                result += '\n' + reportDayNumber + '\n\n';
 
                 // Extract revenue values with improved regex
                 const revenueMatches = {
@@ -1358,12 +1481,15 @@ document.removeEventListener('paste', null);
                 // Debug final values
                 console.log('Revenue values:', revenues);
 
-                result += revenues.map(v => v.toFixed(2)).join('\n');
+                // Insert total revenue line BEFORE the first category (BEBIDAS)
+                const totalRevenueLine = revenues.reduce((sum, val) => sum + val, 0).toFixed(2);
+                result += totalRevenueLine + '\n' + revenues.map(v => v.toFixed(2)).join('\n');
 
                 return {
                     result: result.trim(),
                     stats: {
                         bolosTotal: bolosTotalValue,
+                        ...(dateStartISO && dateEndISO ? { dateRange: { start: dateStartISO, end: dateEndISO } } : {}),
                         revenue: {
                             total: revenues.reduce((sum, val) => sum + val, 0),
                             bebidas: revenues[0],
@@ -1387,11 +1513,57 @@ document.removeEventListener('paste', null);
             previewLoja.textContent = '';
             errorDiv.style.display = 'none';
             unknownBolosDiv.style.display = 'none';
-            document.getElementById('success-loja').classList.remove('visible');
+            
+            // Se estava copiado, volta ao estado "pronto"
+            if (copyButtonLoja.classList.contains('button-copied')) {
+                resetButtonToReady(copyButtonLoja);
+            }
             
             try {
                 const text = textareaLoja.value;
-                if (!text.trim()) return;
+                if (!text.trim()) {
+                    // Sem texto, botão volta ao estado desabilitado
+                    copyButtonLoja.classList.remove('button-ready', 'button-copied');
+                    copyButtonLoja.classList.add('button-disabled');
+                    return;
+                }
+
+                // Verifica se não é o resultado já processado (apenas números e valores)
+                const lines = text.trim().split('\n').filter(l => l.trim());
+                const numbersOnly = lines.every(line => {
+                    const trimmed = line.trim();
+                    return /^[\d.,]+$/.test(trimmed) || trimmed === '';
+                });
+                
+                if (numbersOnly && lines.length > 10) {
+                    throw new Error('Este parece ser um resultado já processado. Cole o relatório original do sistema.');
+                }
+                
+                // Verifica se não é relatório do Shopping Millennium (RaffinatoCore)
+                if (text.includes('Total Geral') || text.includes('Totalizadores Gerais') || 
+                    text.includes('Impresso em') || text.includes('Página 1 de 2')) {
+                    // Cola automaticamente no campo correto
+                    textareaLoja.value = '';
+                    textareaQuiosque.value = text;
+                    
+                    // Feedback visual no campo correto
+                    textareaQuiosque.classList.add('textarea-success');
+                    setTimeout(() => textareaQuiosque.classList.remove('textarea-success'), 1000);
+                    
+                    // Mostra notificação
+                    errorDiv.textContent = '✓ Relatório do Shopping Millennium movido para o campo correto!';
+                    errorDiv.style.display = 'block';
+                    errorDiv.style.background = 'var(--green-light)';
+                    errorDiv.style.color = 'var(--green-text)';
+                    setTimeout(() => {
+                        errorDiv.style.display = 'none';
+                        errorDiv.style.background = '';
+                        errorDiv.style.color = '';
+                    }, 3000);
+                    
+                    processInputQuiosque();
+                    return;
+                }
 
                 const { result, stats } = parseStoreReport(text);
 
@@ -1449,39 +1621,55 @@ document.removeEventListener('paste', null);
                     // Atualiza o resumo do dashboard (parte de baixo)
                     document.getElementById('summary-loja').textContent = `${totalBolos} bolos`;
                     document.getElementById('summary-loja-ifood').textContent = `(${totalBolosIf} iFood)`;
-                    document.getElementById('summary-loja-valor').textContent = 
-                        `R$ ${totalFaturado.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                    // Exibir como moeda BR: R$ 1.554,00
+                    document.getElementById('summary-loja-valor').textContent = `R$ ${totalFaturado.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
                     // Atualiza o total geral (soma dos dois)
                     updateSummaryTotal();
+                    
+                    // Destaca o botão para o usuário clicar (Safari não permite cópia automática)
+                    highlightCopyButton(copyButtonLoja);
 
-                    document.getElementById('success-loja').classList.add('visible');
-                    copyText(result, copyButtonLoja);
                     if (stats.unknownBolos?.length > 0) {
                         unknownBolosDiv.textContent = `Novo(s) sabor(es) identificado(s): ${stats.unknownBolos.join(', ')}. Não contabilizado(s) no resultado.`;
                         unknownBolosDiv.style.display = 'block';
                     }
+                } else {
+                    // Resultado inválido, desabilita o botão e vibra o campo
+                    copyButtonLoja.classList.remove('button-ready', 'button-copied');
+                    copyButtonLoja.classList.add('button-disabled');
+                    textareaLoja.classList.add('textarea-error');
+                    setTimeout(() => textareaLoja.classList.remove('textarea-error'), 500);
                 }
             } catch (err) {
                 console.error('Erro:', err);
                 errorDiv.textContent = err.message || 'Erro ao processar relatório. Verifique o formato.';
                 errorDiv.style.display = 'block';
+                
+                // Em caso de erro, desabilita o botão e vibra o campo
+                copyButtonLoja.classList.remove('button-ready', 'button-copied');
+                copyButtonLoja.classList.add('button-disabled');
+                textareaLoja.classList.add('textarea-error');
+                setTimeout(() => textareaLoja.classList.remove('textarea-error'), 500);
             }
         }
 
 
         // Handler do botão de cópia para mostrar feedback visual
         copyButtonLoja.addEventListener('click', () => {
+            // Process the report first if not already processed
+            if (!previewLoja.textContent && textareaLoja.value.trim()) {
+                processInputLoja();
+            }
+            
             const result = previewLoja.textContent;
-            if (!result) return;
-            copyButtonLoja.style.background = '#22c55e';
-            copyButtonLoja.style.color = 'white';
-            copyText(result, copyButtonLoja).finally(() => {
-                setTimeout(() => {
-                    copyButtonLoja.style.background = '';
-                    copyButtonLoja.style.color = '';
-                }, 2000);
-            });
+            if (!result) {
+                errorDiv.textContent = 'Cole um relatório primeiro';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            copyText(result, copyButtonLoja);
         });
 
 
@@ -1528,18 +1716,19 @@ document.removeEventListener('paste', null);
         }
 
         copyButtonQuiosque.addEventListener('click', () => {
+            // Process the report first if not already processed
+            if (!previewQuiosque.textContent && textareaQuiosque.value.trim()) {
+                processInputQuiosque();
+            }
+            
             const result = previewQuiosque.textContent;
-            if (!result) return;
+            if (!result) {
+                errorDiv.textContent = 'Cole um relatório primeiro';
+                errorDiv.style.display = 'block';
+                return;
+            }
             
-            copyButtonQuiosque.style.background = '#22c55e';
-            copyButtonQuiosque.style.color = 'white';
-            
-            copyText(result, copyButtonQuiosque).finally(() => {
-                setTimeout(() => {
-                    copyButtonQuiosque.style.background = '';
-                    copyButtonQuiosque.style.color = '';
-                }, 2000);
-            });
+            copyText(result, copyButtonQuiosque);
         });
 
         // Debounce function to prevent too many updates
@@ -1555,6 +1744,7 @@ document.removeEventListener('paste', null);
             };
         }
 
+        // Process on input (for real-time feedback in dashboard)
         textareaQuiosque.addEventListener('input', debounce(processInputQuiosque, 500));
         textareaLoja.addEventListener('input', debounce(processInputLoja, 500));
 
@@ -1626,11 +1816,26 @@ document.removeEventListener('paste', null);
     const totalBolos = loja + quiosque;
 
     // Faturamento
-    function parseBRL(str) {
-        return parseFloat((str || '').replace(/[^\d,]/g, '').replace(/\./g, '').replace(',', '.')) || 0;
+    // Aceita tanto formato "1554.00" quanto "R$ 1.554,00"
+    function parseCurrencyFlexible(str) {
+        const s = str || '';
+        // Tenta pegar o último número com parte decimal (ponto ou vírgula)
+        const m = s.match(/(\d{1,3}(?:[.,]\d{3})*[.,]\d{2}|\d+(?:[.,]\d{2})?)(?!.*\d)/);
+        if (!m) return 0;
+        const num = m[1];
+        // Se tiver vírgula e ponto, assume ponto como milhar e vírgula como decimal
+        if (num.includes(',') && num.includes('.')) {
+            return parseFloat(num.replace(/\./g, '').replace(',', '.')) || 0;
+        }
+        // Se tiver só vírgula, trata como decimal
+        if (num.includes(',')) {
+            return parseFloat(num.replace(',', '.')) || 0;
+        }
+        // Caso geral: já está com ponto decimal ou inteiro
+        return parseFloat(num) || 0;
     }
-    const lojaValor = parseBRL(document.getElementById('summary-loja-valor').textContent);
-    const quiosqueValor = parseBRL(document.getElementById('summary-quiosque-valor').textContent);
+    const lojaValor = parseCurrencyFlexible(document.getElementById('summary-loja-valor').textContent);
+    const quiosqueValor = parseCurrencyFlexible(document.getElementById('summary-quiosque-valor').textContent);
     const totalValor = lojaValor + quiosqueValor;
 
     document.getElementById('summary-total').textContent = `${totalBolos} bolos`;

@@ -2,35 +2,41 @@
 
 ## Visão Geral
 
-Este documento descreve a implementação do parser de relatórios de vendas para duas lojas: **Loja** e **Quiosque**. O parser é uma ferramenta web que interpreta relatórios de vendas e extrai dados estruturados para transferência para planilhas.
+Este documento descreve a implementação do parser de relatórios de vendas para duas lojas: **Barra Olímpica** (sistema Raffinato) e **Shopping Millennium** (sistema RaffinatoCore). O parser é uma ferramenta web inteligente que interpreta relatórios de vendas, extrai dados estruturados e fornece feedback visual em tempo real.
 
 ## Estrutura do Projeto
 
 ```
-Web/
-├── index.html          # Interface do usuário
-├── script.js           # Lógica principal do parser
-├── styles.css          # Estilos da interface
+bolodebolo/
+├── index.html          # Interface do usuário com navegação
+├── script.js           # Lógica de parsing, validação e feedback
+├── styles.css          # Estilos responsivos e animações
+├── README.md           # Documentação de uso
+├── DOCUMENTACAO_PARSER.md  # Este arquivo (documentação técnica)
 └── Logo Bolo de Bolo 2025 Cor Small.png
 ```
 
 ## Funcionalidades Principais
 
-### 1. Interpretação de Relatórios
-- **Loja**: Relatórios com formato específico para loja física, incluindo seções BOLO, BOLOS IFOOD, ALIMENTOS, BEBIDAS, FATIAS e ARTIGOS DE FESTA
-- **Quiosque**: Relatórios com categorias de produtos (BEBIDAS, BOLOS, BOLOS IFOOD, FATIAS, etc.)
+### 1. Detecção Automática de Relatórios
+- **Barra Olímpica** (Raffinato): Detecta padrões específicos (Vendas:, Desconto:, Acréscimo:)
+- **Shopping Millennium** (RaffinatoCore): Detecta padrões (Total Geral, Totalizadores Gerais, Impresso em)
+- **Auto-correção**: Move automaticamente relatórios colados no campo errado
+- **Validação**: Rejeita resultados já processados (apenas números)
 
 ### 2. Extração de Dados
-- Quantidades de produtos vendidos por categoria
-- Valores de faturamento por categoria com cálculo preciso
+- Quantidades de produtos vendidos por categoria (41 sabores de bolos)
+- Valores de faturamento por categoria com precisão de centavos
 - Consolidação automática de categorias relacionadas (BOLOS + BOLOS IFOOD)
-- Acréscimos e descontos
-- Totalizadores gerais
+- Acréscimos, descontos e taxa de entrega
+- Totalizadores gerais e impostos
 
-### 3. Saída Formatada
-- Lista de números formatados para clipboard
-- Dashboard com resumo visual **consistente** com os valores extraídos
-- Validação cruzada entre diferentes métodos de extração
+### 3. Interface e Feedback Visual
+- **Estados do botão**: Desabilitado (cinza) → Pronto (verde) → Copiado (borda verde)
+- **Animações**: Pulsação quando pronto, vibração quando erro
+- **Notificações**: Verde para sucesso, vermelho para erro
+- **Dashboard em tempo real**: Atualização imediata dos totais
+- **Modo escuro**: Adapta-se automaticamente às preferências do sistema
 
 ## Arquitetura do Parser
 
@@ -467,8 +473,149 @@ O sistema já funcionava corretamente com o sistema multi-camadas de extração 
 4. ~~Extração imprecisa de valores com vírgulas~~ ✅
 
 ### 📋 Status Atual
-- ✅ Parser do Quiosque: Funcionando corretamente
-- ✅ Parser da Loja: Funcionando corretamente  
+- ✅ Parser do Shopping Millennium: Funcionando corretamente
+- ✅ Parser da Barra Olímpica: Funcionando corretamente  
 - ✅ Sistema de faturamento: Consistente entre resumo e clipboard
+- ✅ Validação automática: Detecta e move relatórios para campo correto
+- ✅ Feedback visual: Estados do botão e animações implementadas
+- ✅ Interface unificada: Design consistente em todos os botões
 - ✅ Logs de debugging: Implementados e funcionais
-- ✅ Documentação: Atualizada com correções
+- ✅ Documentação: Atualizada com todas as funcionalidades
+
+## Sistema de Validação e Feedback
+
+### Validações Automáticas
+
+#### 1. Detecção de Tipo de Relatório
+```javascript
+// Detecta relatório da Barra Olímpica (Raffinato)
+if (text.includes('Vendas:') && text.includes('Desconto:') && 
+    !text.includes('Total Geral')) {
+    // Move para campo da Barra Olímpica
+}
+
+// Detecta relatório do Shopping Millennium (RaffinatoCore)
+if (text.includes('Total Geral') || text.includes('Totalizadores Gerais')) {
+    // Move para campo do Shopping Millennium
+}
+```
+
+#### 2. Validação de Resultado Processado
+```javascript
+// Verifica se é resultado já processado (apenas números)
+const numbersOnly = lines.every(line => /^[\d.,]+$/.test(line.trim()));
+if (numbersOnly && lines.length > 10) {
+    throw new Error('Resultado já processado detectado');
+}
+```
+
+### Estados do Botão "Copiar Resultado"
+
+#### Estado 1: Desabilitado (`.button-disabled`)
+- **Aparência**: Fundo cinza (`#e5e7eb`), texto cinza claro
+- **Quando**: Antes de colar, campo vazio, ou erro no processamento
+- **Cursor**: `not-allowed`
+
+#### Estado 2: Pronto (`.button-ready`)
+- **Aparência**: Fundo verde (`#059669`), texto branco
+- **Animação**: Pulsação 3 vezes (`@keyframes pulse`)
+- **Quando**: Após processar relatório válido
+- **Interação**: Clicável para copiar
+
+#### Estado 3: Copiado (`.button-copied`)
+- **Aparência**: Fundo branco, borda verde (`#059669`), texto verde
+- **Texto**: Muda para "Copiado!"
+- **Quando**: Após clicar no botão
+- **Duração**: Permanece até o textarea ser modificado
+
+### Animações e Feedback Visual
+
+#### Animação de Sucesso (`.textarea-success`)
+```css
+@keyframes highlight {
+    0% { border-color: #10b981; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    50% { border-color: #10b981; box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+    100% { border-color: var(--border); }
+}
+```
+- **Quando**: Relatório movido automaticamente para campo correto
+- **Efeito**: Borda verde com expansão de shadow (efeito "ripple")
+- **Duração**: 1 segundo
+
+#### Animação de Erro (`.textarea-error`)
+```css
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+    20%, 40%, 60%, 80% { transform: translateX(8px); }
+}
+```
+- **Quando**: Erro no processamento, resultado já processado, campo errado
+- **Efeito**: Vibração horizontal + borda vermelha
+- **Duração**: 0.5 segundos
+
+#### Notificações
+```javascript
+// Notificação de sucesso (verde)
+errorDiv.style.background = 'var(--green-light)';  // #d1fae5
+errorDiv.style.color = 'var(--green-text)';        // #065f46
+errorDiv.textContent = '✓ Relatório movido para o campo correto!';
+
+// Notificação de erro (vermelho)
+errorDiv.style.background = '#fee2e2';
+errorDiv.style.color = '#dc2626';
+errorDiv.textContent = 'Erro ao processar relatório';
+```
+
+## Design System
+
+### Paleta de Cores Padronizada
+```css
+:root {
+    --green-dark:  #14532d;  /* Verde escuro (emerald-900) */
+    --green-base:  #10b981;  /* Verde base (emerald-500) */
+    --green-hover: #059669;  /* Verde hover/ativo (emerald-600) */
+    --green-text:  #065f46;  /* Verde texto (emerald-800) */
+    --green-light: #d1fae5;  /* Verde claro (emerald-100) */
+}
+```
+
+### Consistência Visual
+- Todos os botões compartilham o mesmo estilo base
+- Hover: `#059669` (verde sólido, sem gradiente)
+- Border-radius: `24px` (consistente)
+- Padding: `12px 20px` (consistente)
+- Box-shadow: `0 1px 2px rgba(0,0,0,0.05)` (consistente)
+
+## Otimizações para Safari/macOS
+
+### Scrollbar Oculta
+```css
+textarea::-webkit-scrollbar { display: none; }
+textarea { scrollbar-width: none; }
+```
+
+### Clipboard API com Fallback
+```javascript
+// Tenta API moderna
+await navigator.clipboard.writeText(text);
+
+// Fallback para Safari (execCommand)
+const textArea = document.createElement('textarea');
+textArea.value = text;
+document.body.appendChild(textArea);
+textArea.select();
+document.execCommand('copy');
+document.body.removeChild(textArea);
+```
+
+## Navegação
+
+### Links para Sistemas
+- **Barra Olímpica**: https://gestor.raffinato.inf.br/ProdutosFaturados/Relatorio
+- **Shopping Millennium**: https://gestor.raffinatocore.com/report/order/products-sold
+
+### Última Modificação
+- Exibido no rodapé da página
+- Formato: "Atualizado em DD/MM/YYYY - HH:MM"
+- Gerado automaticamente via JavaScript
