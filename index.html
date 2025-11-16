@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Report Parser</title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -11,21 +12,26 @@
             <img src="Logo Bolo de Bolo 2025 Cor Small.png" alt="Logo Bolo de Bolo">
             <h1>Relatório de <span class="title-highlight">Vendas</span> para Planilha</h1>
         </div>
-        <div class="top-bar-right">
-            <div class="system-buttons">
-                <a href="https://gestor.raffinato.inf.br/ProdutosFaturados/Relatorio" target="_blank" class="system-link">Sistema Barra Olímpica</a>
-                <a href="https://gestor.raffinatocore.com/report/order/products-sold?companyId=83c2c9da-2384-43ee-8555-e95644c840f5&storeId=dec4ca8f-7ada-42cd-94c0-c95d88e55c2a" target="_blank" class="system-link">Sistema Shopping Millennium</a>
-            </div>
-        </div>
     </div>
 
     <div class="container">
         <div class="two-column-grid">
             <!-- Coluna Barra Olímpica -->
             <div class="column">
-                <h3>Barra Olímpica</h3>
+                <div class="column-header">
+                    <h3>Barra Olímpica</h3>
+                    <a href="https://gestor.raffinato.inf.br/ProdutosFaturados/Relatorio" target="_blank" class="system-link-inline">Sistema</a>
+                </div>
                 <div class="column-content">
-                    <textarea id="input-loja" placeholder="Cole o relatório da Barra Olímpica aqui..."></textarea>
+                    <div class="textarea-wrapper">
+                        <textarea id="input-loja" placeholder="Cole o relatório da Barra Olímpica aqui..."></textarea>
+                        <button class="clear-button" id="clear-loja" style="display: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <div class="button-container">
                     <button id="copyButton-loja" class="button button-disabled">
@@ -40,9 +46,20 @@
             
             <!-- Coluna Shopping Millennium -->
             <div class="column">
-                <h3>Shopping Millennium</h3>
+                <div class="column-header">
+                    <h3>Shopping Millennium</h3>
+                    <a href="https://gestor.raffinatocore.com/report/order/products-sold?companyId=83c2c9da-2384-43ee-8555-e95644c840f5&storeId=dec4ca8f-7ada-42cd-94c0-c95d88e55c2a" target="_blank" class="system-link-inline">Sistema</a>
+                </div>
                 <div class="column-content">
-                    <textarea id="input-quiosque" placeholder="Cole o relatório do Shopping Millennium aqui..."></textarea>
+                    <div class="textarea-wrapper">
+                        <textarea id="input-quiosque" placeholder="Cole o relatório do Shopping Millennium aqui..."></textarea>
+                        <button class="clear-button" id="clear-quiosque" style="display: none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
                 <div class="button-container">
                     <button id="copyButton-quiosque" class="button button-disabled">

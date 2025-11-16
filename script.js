@@ -1841,3 +1841,40 @@ document.removeEventListener('paste', null);
     document.getElementById('summary-total').textContent = `${totalBolos} bolos`;
     document.getElementById('summary-valor-total').textContent = `R$ ${totalValor.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 }
+
+// Botões de limpar
+function setupClearButtons() {
+    const inputLoja = document.getElementById('input-loja');
+    const inputQuiosque = document.getElementById('input-quiosque');
+    const clearLoja = document.getElementById('clear-loja');
+    const clearQuiosque = document.getElementById('clear-quiosque');
+
+    // Mostra/esconde botão de limpar baseado no conteúdo
+    function toggleClearButton(textarea, button) {
+        if (textarea.value.trim().length > 0) {
+            button.style.display = 'flex';
+        } else {
+            button.style.display = 'none';
+        }
+    }
+
+    // Event listeners para mostrar/esconder botões
+    inputLoja.addEventListener('input', () => toggleClearButton(inputLoja, clearLoja));
+    inputQuiosque.addEventListener('input', () => toggleClearButton(inputQuiosque, clearQuiosque));
+
+    // Event listeners para limpar campos
+    clearLoja.addEventListener('click', () => {
+        inputLoja.value = '';
+        clearLoja.style.display = 'none';
+        inputLoja.dispatchEvent(new Event('input'));
+    });
+
+    clearQuiosque.addEventListener('click', () => {
+        inputQuiosque.value = '';
+        clearQuiosque.style.display = 'none';
+        inputQuiosque.dispatchEvent(new Event('input'));
+    });
+}
+
+// Inicializa os botões de limpar quando a página carregar
+setupClearButtons();

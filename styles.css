@@ -108,19 +108,74 @@ h3 {
     box-shadow: var(--shadow);
 }
 
-.column h3 {
-    margin-top: 0;
+.column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 12px;
+}
+
+.column h3 {
+    margin: 0;
+}
+
+.system-link-inline {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 20px;
+    background: white;
+    color: var(--green-hover);
+    border: 1px solid var(--green-hover);
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.system-link-inline:hover {
+    background: var(--green-hover);
+    color: white;
 }
 
 .column-content {
     flex: 1;
 }
 
+.textarea-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.clear-button {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.clear-button:hover {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.clear-button svg {
+    color: #666;
+}
+
 textarea { 
     box-sizing: border-box;
     width: 100%;
-    height: 120px;
+    height: 60px;
     padding: 16px;
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -129,7 +184,7 @@ textarea {
     line-height: 1.5;
     resize: vertical;
     white-space: pre;
-    min-height: 80px;
+    min-height: 40px;
     overflow: auto;
 }
 
@@ -438,7 +493,7 @@ textarea {
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem 24px;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
@@ -512,19 +567,151 @@ textarea {
     font-size: 14px;
 }
 
+/* Responsivo para Mobile */
 @media (max-width: 768px) {
     body {
-        padding: 12px;
+        padding: 16px;
     }
-    .four-column-grid {
+    
+    /* Top bar mobile */
+    .top-bar {
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px;
+        align-items: stretch;
+    }
+    
+    .top-bar-left {
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .top-bar-left h1 {
+        font-size: 1.25rem;
+    }
+    
+    .top-bar img {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .top-bar-right {
+        justify-content: center;
+    }
+    
+    .system-buttons {
+        flex-direction: column;
+        width: 100%;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .system-link {
+        width: 90%;
+        max-width: 300px;
+        text-align: center;
+        padding: 10px 16px;
+        font-size: 15px;
+    }
+    
+    /* Grid de 2 colunas vira 1 coluna */
+    .two-column-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+        padding: 0;
+        max-width: 100%;
+    }
+    
+    .column {
+        padding: 16px;
+    }
+    
+    .column h3 {
+        font-size: 1.1rem;
+    }
+    
+    .system-link-inline {
+        font-size: 12px;
+        padding: 6px 10px;
+        white-space: nowrap;
+    }
+    
+    /* Campos de texto */
+    textarea {
+        font-size: 16px;
+        padding: 12px;
+        height: 50px;
+        min-height: 40px;
+    }
+    
+    .clear-button {
+        top: 11px;
+    }
+    
+    /* Botões copiar resultado */
+    .button {
+        width: 100%;
+        font-size: 13px;
+        padding: 10px 16px;
+        height: 44px;
+    }
+    
+    .button svg {
+        width: 14px;
+        height: 14px;
+    }
+    
+    /* Summary section */
+    .summary-section {
+        padding: 16px;
+        margin: 16px 0;
+    }
+    
+    .summary-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .summary-value {
+        font-size: 28px;
+    }
+    
+    .summary-label {
+        font-size: 13px;
+    }
+    
+    /* Dashboard */
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         gap: 12px;
     }
-    .column {
+    
+    .metric-card {
         padding: 12px;
     }
-    textarea, #preview-quiosque, #preview-loja {
-        font-size: 12px;
-        padding: 12px;
+    
+    .metric-value {
+        font-size: 20px;
+    }
+    
+    .metric-title {
+        font-size: 13px;
+    }
+    
+    /* Last modified */
+    .last-modified {
+        font-size: 11px;
+        padding: 6px 16px;
+        margin: 24px auto 16px auto;
+    }
+    
+    /* Erros e notificações */
+    #error, .unknown-bolos {
+        font-size: 13px;
+        padding: 10px 12px;
+        margin: 12px 0;
     }
 }
 
