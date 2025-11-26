@@ -1,18 +1,27 @@
 import { processSalesReport, parseStoreReport } from './parsers.js';
 
 // DOM Elements
-const textareaQuiosque = document.getElementById('input-quiosque');
-const previewQuiosque = document.getElementById('preview-quiosque');
+const textareaMain = document.getElementById('input-main');
+const pasteButtonMain = document.getElementById('pasteButton-main');
+const copyButtonLoja = document.getElementById('copyButton-loja');
 const copyButtonQuiosque = document.getElementById('copyButton-quiosque');
+const clearButtonMain = document.getElementById('clear-main');
+const detectionBadge = document.getElementById('detection-badge');
+const detectionText = document.getElementById('detection-text');
+
+const previewQuiosque = document.getElementById('preview-quiosque');
+const previewLoja = document.getElementById('preview-loja');
 const errorDiv = document.getElementById('error');
 const unknownBolosDiv = document.getElementById('unknown-bolos');
 
-const textareaLoja = document.getElementById('input-loja');
-const previewLoja = document.getElementById('preview-loja');
-const copyButtonLoja = document.getElementById('copyButton-loja');
-
 // Helper functions
-async function copyText(text, button, otherButtonToReset) {
+function getButtonDefaultText(button) {
+    if (button.id === 'copyButton-loja') return 'Copiar Barra';
+    if (button.id === 'copyButton-quiosque') return 'Copiar Millennium';
+    return 'Copiar';
+}
+
+async function copyText(text, button) {
     try {
         await navigator.clipboard.writeText(text);
         
@@ -22,10 +31,12 @@ async function copyText(text, button, otherButtonToReset) {
         button.classList.add('button-copied');
         button.style.animation = '';
         button.style.transform = '';
-
-        if (otherButtonToReset && !otherButtonToReset.classList.contains('button-disabled')) {
-            resetButtonToReady(otherButtonToReset);
-        }
+        
+        setTimeout(() => {
+            if (button.classList.contains('button-copied')) {
+                resetButtonToReady(button);
+            }
+        }, 2000);
         
         return true;
     } catch (err) {
@@ -51,10 +62,12 @@ async function copyText(text, button, otherButtonToReset) {
                 button.classList.add('button-copied');
                 button.style.animation = '';
                 button.style.transform = '';
-
-                if (otherButtonToReset && !otherButtonToReset.classList.contains('button-disabled')) {
-                    resetButtonToReady(otherButtonToReset);
-                }
+                
+                setTimeout(() => {
+                    if (button.classList.contains('button-copied')) {
+                        resetButtonToReady(button);
+                    }
+                }, 2000);
                 
                 return true;
             }
@@ -73,9 +86,16 @@ function highlightCopyButton(button) {
     }
 }
 
+function disableCopyButton(button) {
+    button.classList.remove('button-ready', 'button-copied');
+    button.classList.add('button-disabled');
+    const span = button.querySelector('span');
+    if (span) span.textContent = getButtonDefaultText(button);
+}
+
 function resetButtonToReady(button) {
     const span = button.querySelector('span');
-    if (span) span.textContent = 'Copiar Resultado';
+    if (span) span.textContent = getButtonDefaultText(button);
     button.classList.remove('button-disabled', 'button-copied');
     button.classList.add('button-ready');
 }
@@ -189,38 +209,85 @@ function updateSummaryItemOpacity(elementId, count, value) {
     }
 }
 
-function resetSummary(type) {
-    const suffix = type === 'loja' ? 'loja' : 'quiosque';
-    document.getElementById(`summary-${suffix}`).textContent = '0 bolos';
-    document.getElementById(`summary-${suffix}-ifood`).textContent = '(0 iFood)';
-    document.getElementById(`summary-${suffix}-valor`).textContent = 'R$ 0,00';
-    
-    const el = document.getElementById(`summary-${suffix}`);
-    if (el && el.parentElement) {
-        el.parentElement.classList.add('empty');
+let badgeTimeout;
+
+function updateDetectionBadge(status, message, duration = 0) {
+    if (badgeTimeout) clearTimeout(badgeTimeout);
+
+    detectionBadge.className = 'detection-badge'; // Reset classes
+    if (status === 'hidden') {
+        detectionBadge.classList.add('hidden');
+    } else {
+        detectionBadge.classList.add(status);
+        detectionText.textContent = message;
+
+        if (duration > 0) {
+            badgeTimeout = setTimeout(() => {
+                detectionBadge.classList.add('hidden');
+            }, duration);
+        }
     }
-    updateSummaryTotal();
 }
 
-async function processInputQuiosque(autoCopy = false) {
-    previewQuiosque.textContent = '';
+function detectStore(text) {
+    if (!text || !text.trim()) return null;
+    
+    // Check for Millennium specific keywords
+    if (text.includes('Total Geral') || text.includes('Totalizadores Gerais') || 
+        text.includes('Impresso em') || text.includes('Página 1 de 2')) {
+        return 'quiosque';
+    }
+    
+    // Check for Barra Olímpica specific keywords
+    // Raffinato reports usually have "Vendas:" in the footer, or "Valor Unitário:" in items
+    if (text.includes('Vendas:') || text.includes('Valor Unitário:') || text.includes('Produtos Vendidos')) {
+        return 'loja';
+    }
+    
+    return 'unknown';
+}
+
+async function processInputMain(autoCopy = false) {
     errorDiv.style.display = 'none';
     unknownBolosDiv.style.display = 'none';
     clearDashboard();
     
-    if (copyButtonQuiosque.classList.contains('button-copied')) {
-        resetButtonToReady(copyButtonQuiosque);
+    // Check if we have stored data and enable buttons accordingly
+    if (previewLoja.textContent.trim()) {
+        highlightCopyButton(copyButtonLoja);
+    } else {
+        disableCopyButton(copyButtonLoja);
+    }
+
+    if (previewQuiosque.textContent.trim()) {
+        highlightCopyButton(copyButtonQuiosque);
+    } else {
+        disableCopyButton(copyButtonQuiosque);
     }
     
-    try {
-        const text = textareaQuiosque.value;
-        if (!text.trim()) {
-            copyButtonQuiosque.classList.remove('button-ready', 'button-copied');
-            copyButtonQuiosque.classList.add('button-disabled');
-            resetSummary('quiosque');
-            return;
-        }
+    const text = textareaMain.value;
+    if (!text.trim()) {
+        updateDetectionBadge('hidden', '');
+        return;
+    }
 
+    const storeType = detectStore(text);
+    
+    if (storeType === 'quiosque') {
+        updateDetectionBadge('success', 'Detectado: Shopping Millennium', 3000);
+        processQuiosqueLogic(text, autoCopy);
+    } else if (storeType === 'loja') {
+        updateDetectionBadge('success', 'Detectado: Barra Olímpica', 3000);
+        processLojaLogic(text, autoCopy);
+    } else {
+        updateDetectionBadge('error', 'Formato desconhecido');
+        errorDiv.textContent = 'Não foi possível identificar o relatório. Verifique se copiou todo o conteúdo.';
+        errorDiv.style.display = 'block';
+    }
+}
+
+async function processQuiosqueLogic(text, autoCopy) {
+    try {
         const lines = text.trim().split('\n').filter(l => l.trim());
         const numbersOnly = lines.every(line => {
             const trimmed = line.trim();
@@ -229,28 +296,6 @@ async function processInputQuiosque(autoCopy = false) {
         
         if (numbersOnly && lines.length > 10) {
             throw new Error('Este parece ser um resultado já processado. Cole o relatório original do sistema.');
-        }
-        
-        if (text.includes('Vendas:') && text.includes('Desconto:') && text.includes('Acréscimo:') && 
-            !text.includes('Total Geral') && !text.includes('Totalizadores Gerais')) {
-            textareaQuiosque.value = '';
-            textareaLoja.value = text;
-            
-            textareaLoja.classList.add('textarea-success');
-            setTimeout(() => textareaLoja.classList.remove('textarea-success'), 1000);
-            
-            errorDiv.textContent = '✓ Relatório da Barra Olímpica movido para o campo correto!';
-            errorDiv.style.display = 'block';
-            errorDiv.style.background = 'var(--green-light)';
-            errorDiv.style.color = 'var(--green-text)';
-            setTimeout(() => {
-                errorDiv.style.display = 'none';
-                errorDiv.style.background = '';
-                errorDiv.style.color = '';
-            }, 3000);
-            
-            processInputLoja(autoCopy);
-            return;
         }
 
         const { result, stats } = processSalesReport(text);
@@ -273,13 +318,12 @@ async function processInputQuiosque(autoCopy = false) {
             document.getElementById('summary-quiosque-valor').textContent = `R$ ${totalFaturado.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
             updateSummaryItemOpacity('summary-quiosque', totalBolos + totalBolosIf, totalFaturado);
-
             updateSummaryTotal();
             
             highlightCopyButton(copyButtonQuiosque);
 
             if (autoCopy) {
-                await copyText(result, copyButtonQuiosque, copyButtonLoja);
+                await copyText(result, copyButtonQuiosque);
             }
 
             if (stats.unknownBolos?.length > 0) {
@@ -287,41 +331,18 @@ async function processInputQuiosque(autoCopy = false) {
                 unknownBolosDiv.style.display = 'block';
             }
         } else {
-            copyButtonQuiosque.classList.remove('button-ready', 'button-copied');
-            copyButtonQuiosque.classList.add('button-disabled');
-            textareaQuiosque.classList.add('textarea-error');
-            setTimeout(() => textareaQuiosque.classList.remove('textarea-error'), 500);
+            throw new Error('Falha ao processar dados do Millennium');
         }
     } catch (err) {
         console.error('Erro:', err);
-        errorDiv.textContent = err.message || 'Erro ao processar relatório. Verifique o formato.';
+        errorDiv.textContent = err.message || 'Erro ao processar relatório.';
         errorDiv.style.display = 'block';
-        
-        copyButtonQuiosque.classList.remove('button-ready', 'button-copied');
-        copyButtonQuiosque.classList.add('button-disabled');
-        textareaQuiosque.classList.add('textarea-error');
-        setTimeout(() => textareaQuiosque.classList.remove('textarea-error'), 500);
+        updateDetectionBadge('error', 'Erro no processamento');
     }
 }
 
-async function processInputLoja(autoCopy = false) {
-    previewLoja.textContent = '';
-    errorDiv.style.display = 'none';
-    unknownBolosDiv.style.display = 'none';
-    
-    if (copyButtonLoja.classList.contains('button-copied')) {
-        resetButtonToReady(copyButtonLoja);
-    }
-    
+async function processLojaLogic(text, autoCopy) {
     try {
-        const text = textareaLoja.value;
-        if (!text.trim()) {
-            copyButtonLoja.classList.remove('button-ready', 'button-copied');
-            copyButtonLoja.classList.add('button-disabled');
-            resetSummary('loja');
-            return;
-        }
-
         const lines = text.trim().split('\n').filter(l => l.trim());
         const numbersOnly = lines.every(line => {
             const trimmed = line.trim();
@@ -330,28 +351,6 @@ async function processInputLoja(autoCopy = false) {
         
         if (numbersOnly && lines.length > 10) {
             throw new Error('Este parece ser um resultado já processado. Cole o relatório original do sistema.');
-        }
-        
-        if (text.includes('Total Geral') || text.includes('Totalizadores Gerais') || 
-            text.includes('Impresso em') || text.includes('Página 1 de 2')) {
-            textareaLoja.value = '';
-            textareaQuiosque.value = text;
-            
-            textareaQuiosque.classList.add('textarea-success');
-            setTimeout(() => textareaQuiosque.classList.remove('textarea-success'), 1000);
-            
-            errorDiv.textContent = '✓ Relatório do Shopping Millennium movido para o campo correto!';
-            errorDiv.style.display = 'block';
-            errorDiv.style.background = 'var(--green-light)';
-            errorDiv.style.color = 'var(--green-text)';
-            setTimeout(() => {
-                errorDiv.style.display = 'none';
-                errorDiv.style.background = '';
-                errorDiv.style.color = '';
-            }, 3000);
-            
-            processInputQuiosque(autoCopy);
-            return;
         }
 
         const { result, stats } = parseStoreReport(text);
@@ -404,13 +403,12 @@ async function processInputLoja(autoCopy = false) {
             document.getElementById('summary-loja-valor').textContent = `R$ ${totalFaturado.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
             updateSummaryItemOpacity('summary-loja', totalBolos, totalFaturado);
-
             updateSummaryTotal();
             
             highlightCopyButton(copyButtonLoja);
 
             if (autoCopy) {
-                await copyText(result, copyButtonLoja, copyButtonQuiosque);
+                await copyText(result, copyButtonLoja);
             }
 
             if (stats.unknownBolos?.length > 0) {
@@ -418,20 +416,13 @@ async function processInputLoja(autoCopy = false) {
                 unknownBolosDiv.style.display = 'block';
             }
         } else {
-            copyButtonLoja.classList.remove('button-ready', 'button-copied');
-            copyButtonLoja.classList.add('button-disabled');
-            textareaLoja.classList.add('textarea-error');
-            setTimeout(() => textareaLoja.classList.remove('textarea-error'), 500);
+            throw new Error('Falha ao processar dados da Barra Olímpica');
         }
     } catch (err) {
         console.error('Erro:', err);
-        errorDiv.textContent = err.message || 'Erro ao processar relatório. Verifique o formato.';
+        errorDiv.textContent = err.message || 'Erro ao processar relatório.';
         errorDiv.style.display = 'block';
-        
-        copyButtonLoja.classList.remove('button-ready', 'button-copied');
-        copyButtonLoja.classList.add('button-disabled');
-        textareaLoja.classList.add('textarea-error');
-        setTimeout(() => textareaLoja.classList.remove('textarea-error'), 500);
+        updateDetectionBadge('error', 'Erro no processamento');
     }
 }
 
@@ -447,36 +438,23 @@ function debounce(func, wait) {
     };
 }
 
-function setupClearButtons() {
-    const clearLoja = document.getElementById('clear-loja');
-    const clearQuiosque = document.getElementById('clear-quiosque');
-    const pasteLoja = document.getElementById('pasteButton-loja');
-    const pasteQuiosque = document.getElementById('pasteButton-quiosque');
-
-    function toggleButtons(textarea, clearBtn, pasteBtn) {
-        if (textarea.value.trim().length > 0) {
-            clearBtn.style.display = 'flex';
+function setupClearButton() {
+    function toggleButton() {
+        if (textareaMain.value.trim().length > 0) {
+            clearButtonMain.style.display = 'flex';
         } else {
-            clearBtn.style.display = 'none';
+            clearButtonMain.style.display = 'none';
         }
     }
 
-    textareaLoja.addEventListener('input', () => toggleButtons(textareaLoja, clearLoja, pasteLoja));
-    textareaQuiosque.addEventListener('input', () => toggleButtons(textareaQuiosque, clearQuiosque, pasteQuiosque));
+    textareaMain.addEventListener('input', toggleButton);
+    toggleButton();
 
-    toggleButtons(textareaLoja, clearLoja, pasteLoja);
-    toggleButtons(textareaQuiosque, clearQuiosque, pasteQuiosque);
-
-    clearLoja.addEventListener('click', () => {
-        textareaLoja.value = '';
-        toggleButtons(textareaLoja, clearLoja, pasteLoja);
-        textareaLoja.dispatchEvent(new Event('input'));
-    });
-
-    clearQuiosque.addEventListener('click', () => {
-        textareaQuiosque.value = '';
-        toggleButtons(textareaQuiosque, clearQuiosque, pasteQuiosque);
-        textareaQuiosque.dispatchEvent(new Event('input'));
+    clearButtonMain.addEventListener('click', () => {
+        textareaMain.value = '';
+        toggleButton();
+        textareaMain.dispatchEvent(new Event('input'));
+        textareaMain.focus();
     });
 }
 
@@ -484,99 +462,65 @@ export function init() {
     document.removeEventListener('paste', null);
 
     copyButtonLoja.addEventListener('click', () => {
-        if (!previewLoja.textContent && textareaLoja.value.trim()) {
-            processInputLoja();
+        const resultToCopy = previewLoja.textContent;
+        if (resultToCopy) {
+            copyText(resultToCopy, copyButtonLoja);
         }
-        
-        const result = previewLoja.textContent;
-        if (!result) {
-            errorDiv.textContent = 'Cole um relatório primeiro';
-            errorDiv.style.display = 'block';
-            return;
-        }
-        
-        copyText(result, copyButtonLoja, copyButtonQuiosque);
     });
-
-    const pasteButtonLoja = document.getElementById('pasteButton-loja');
-    if (pasteButtonLoja) {
-        pasteButtonLoja.addEventListener('click', async (event) => {
-            event.preventDefault();
-            
-            textareaLoja.focus();
-            
-            if (navigator.clipboard && navigator.clipboard.readText) {
-                try {
-                    const text = await navigator.clipboard.readText();
-                    if (text) {
-                        textareaLoja.value = text;
-                        textareaLoja.dispatchEvent(new Event('input', { bubbles: true }));
-                        textareaLoja.dispatchEvent(new Event('paste', { bubbles: true }));
-                    }
-                } catch (err) {
-                    console.warn('Erro ao ler clipboard:', err);
-                    document.execCommand('paste');
-                }
-            } else {
-                document.execCommand('paste');
-            }
-        });
-    }
-
-    const pasteButtonQuiosque = document.getElementById('pasteButton-quiosque');
-    if (pasteButtonQuiosque) {
-        pasteButtonQuiosque.addEventListener('click', async (event) => {
-            event.preventDefault();
-            
-            textareaQuiosque.focus();
-            
-            if (navigator.clipboard && navigator.clipboard.readText) {
-                try {
-                    const text = await navigator.clipboard.readText();
-                    if (text) {
-                        textareaQuiosque.value = text;
-                        textareaQuiosque.dispatchEvent(new Event('input', { bubbles: true }));
-                        textareaQuiosque.dispatchEvent(new Event('paste', { bubbles: true }));
-                    }
-                } catch (err) {
-                    console.warn('Erro ao ler clipboard:', err);
-                    document.execCommand('paste');
-                }
-            } else {
-                document.execCommand('paste');
-            }
-        });
-    }
 
     copyButtonQuiosque.addEventListener('click', () => {
-        if (!previewQuiosque.textContent && textareaQuiosque.value.trim()) {
-            processInputQuiosque();
+        const resultToCopy = previewQuiosque.textContent;
+        if (resultToCopy) {
+            copyText(resultToCopy, copyButtonQuiosque);
         }
-        
-        const result = previewQuiosque.textContent;
-        if (!result) {
-            errorDiv.textContent = 'Cole um relatório primeiro';
-            errorDiv.style.display = 'block';
-            return;
-        }
-        
-        copyText(result, copyButtonQuiosque, copyButtonLoja);
     });
 
-    textareaQuiosque.addEventListener('paste', () => {
+    if (pasteButtonMain) {
+        pasteButtonMain.addEventListener('click', async (event) => {
+            event.preventDefault();
+            textareaMain.focus();
+            
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        textareaMain.value = text;
+                        textareaMain.dispatchEvent(new Event('input', { bubbles: true }));
+                        textareaMain.dispatchEvent(new Event('paste', { bubbles: true }));
+                    }
+                } catch (err) {
+                    console.warn('Erro ao ler clipboard:', err);
+                    document.execCommand('paste');
+                }
+            } else {
+                document.execCommand('paste');
+            }
+        });
+    }
+
+    textareaMain.addEventListener('paste', () => {
         setTimeout(() => {
-            processInputQuiosque(true);
+            processInputMain(true);
         }, 50);
     });
 
-    textareaLoja.addEventListener('paste', () => {
-        setTimeout(() => {
-            processInputLoja(true);
-        }, 50);
+    textareaMain.addEventListener('input', debounce(processInputMain, 500));
+
+    setupClearButton();
+
+    // Auto-focus on load
+    textareaMain.focus();
+
+    // Select all text when returning to the tab
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            textareaMain.focus();
+            textareaMain.select();
+        }
     });
 
-    textareaQuiosque.addEventListener('input', debounce(processInputQuiosque, 500));
-    textareaLoja.addEventListener('input', debounce(processInputLoja, 500));
-
-    setupClearButtons();
+    window.addEventListener('focus', () => {
+        textareaMain.focus();
+        textareaMain.select();
+    });
 }

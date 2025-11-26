@@ -8,84 +8,59 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div id="detection-badge" class="detection-badge hidden">
+        <span class="badge-dot"></span>
+        <span id="detection-text">Aguardando relatório...</span>
+    </div>
+
     <div class="top-bar">
         <div class="top-bar-left">
             <img src="Logo Bolo de Bolo 2025 Cor Small.png" alt="Logo Bolo de Bolo">
             <h1>Relatório de <span class="title-highlight">Vendas</span> para Planilha</h1>
         </div>
+        <div class="side-links">
+            <a href="https://gestor.raffinato.inf.br/ProdutosFaturados/Relatorio" target="_blank" class="side-link">Sistema Barra</a>
+            <a href="https://gestor.raffinatocore.com/report/order/products-sold?companyId=83c2c9da-2384-43ee-8555-e95644c840f5&storeId=dec4ca8f-7ada-42cd-94c0-c95d88e55c2a" target="_blank" class="side-link">Sistema Millennium</a>
+        </div>
     </div>
 
     <div class="container">
-        <div class="two-column-grid">
-            <!-- Coluna Barra Olímpica -->
-            <div class="column">
-                <div class="column-header">
-                    <h3>Barra Olímpica</h3>
-                    <a href="https://gestor.raffinato.inf.br/ProdutosFaturados/Relatorio" target="_blank" class="system-link-inline">Sistema</a>
-                </div>
-                <div class="column-content">
-                    <div class="textarea-wrapper">
-                        <textarea id="input-loja" placeholder="Cole o relatório da Barra Olímpica aqui..."></textarea>
-                        <button class="clear-button" id="clear-loja" style="display: none;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="button-container">
-                    <button class="paste-button" id="pasteButton-loja">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                        </svg>
-                        Colar
-                    </button>
-                    <button id="copyButton-loja" class="button button-disabled">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                        </svg>
-                        <span>Copiar Resultado</span>
-                    </button>
-                </div>
+        <div class="content-wrapper">
+            <div class="input-section">
+                <div class="textarea-wrapper">
+                <textarea id="input-main" placeholder="Cole o relatório aqui (Barra ou Millennium)..."></textarea>
+                <button class="clear-button" id="clear-main" style="display: none;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
             </div>
-            
-            <!-- Coluna Shopping Millennium -->
-            <div class="column">
-                <div class="column-header">
-                    <h3>Shopping Millennium</h3>
-                    <a href="https://gestor.raffinatocore.com/report/order/products-sold?companyId=83c2c9da-2384-43ee-8555-e95644c840f5&storeId=dec4ca8f-7ada-42cd-94c0-c95d88e55c2a" target="_blank" class="system-link-inline">Sistema</a>
-                </div>
-                <div class="column-content">
-                    <div class="textarea-wrapper">
-                        <textarea id="input-quiosque" placeholder="Cole o relatório do Shopping Millennium aqui..."></textarea>
-                        <button class="clear-button" id="clear-quiosque" style="display: none;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="button-container">
-                    <button class="paste-button" id="pasteButton-quiosque">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                        </svg>
-                        Colar
-                    </button>
-                    <button id="copyButton-quiosque" class="button button-disabled">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                        </svg>
-                        <span>Copiar Resultado</span>
-                    </button>
-                </div>
+
+            <div class="button-container">
+                <button class="paste-button" id="pasteButton-main">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                    </svg>
+                    Colar
+                </button>
+                <button id="copyButton-loja" class="button button-disabled middle-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span>Copiar Barra</span>
+                </button>
+                <button id="copyButton-quiosque" class="button button-disabled">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span>Copiar Millennium</span>
+                </button>
             </div>
+        </div>
         </div>
         
         <!-- Preview areas hidden but kept for internal processing -->

@@ -211,9 +211,8 @@ h3 {
     background: #f3f4f6; /* Gray background */
     color: #4b5563; /* Dark gray text */
     border: 1px solid var(--border);
-    border-right: none; /* Connect to copy button */
-    /* Rounded corners only on the left */
-    border-radius: 24px 0 0 24px;
+    /* Full rounded corners */
+    border-radius: 24px;
     padding: 0 20px;
     font-size: 14px;
     font-weight: 500;
@@ -439,7 +438,7 @@ textarea {
     display: flex;
     justify-content: center;
     margin-top: 12px;
-    gap: 0; /* Remove gap to attach buttons */
+    gap: 12px; /* Add gap between buttons */
 }
 
 .button {
@@ -456,13 +455,18 @@ textarea {
     height: 48px;
     font-weight: 500;
     cursor: pointer;
-    /* Rounded corners only on the right */
-    border-radius: 0 24px 24px 0;
+    /* Full rounded corners */
+    border-radius: 24px;
     transition: background-color 0.2s, color 0.2s, border-color 0.2s;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     width: 216px;
     justify-content: center;
-    border-left: none; /* Remove border between buttons */
+}
+
+.middle-button {
+    width: auto !important;
+    min-width: 160px;
+    padding: 12px 16px;
 }
 
 .button svg {
@@ -641,6 +645,128 @@ textarea {
     font-size: 14px;
 }
 
+/* Novas Estilizações para a Seção de Input Único e Badge de Detecção */
+.input-section {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    max-width: 100%;
+    margin: 0 auto 24px auto;
+}
+
+.input-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.system-links {
+    display: flex;
+    gap: 12px;
+}
+
+.detection-badge {
+    position: fixed;
+    top: -60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+    background: var(--card-bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.27), opacity 0.3s;
+}
+
+.detection-badge:not(.hidden) {
+    top: 24px;
+    opacity: 1;
+    visibility: visible;
+}
+
+.detection-badge.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #9ca3af;
+}
+
+.detection-badge.success {
+    background: var(--card-bg); /* Keep white/dark bg */
+    color: var(--green-dark);
+    border-color: var(--green-base);
+}
+
+.detection-badge.success .badge-dot {
+    background-color: var(--green-base);
+}
+
+.detection-badge.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border-color: #f87171;
+}
+
+.detection-badge.error .badge-dot {
+    background-color: #ef4444;
+}
+
+/* Ajusta a altura da textarea para input único */
+#input-main {
+    min-height: 120px;
+}
+
+/* Layout Wrapper */
+.content-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* Side Links (Pill) - Now inside Top Bar */
+.side-links {
+    display: flex;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.side-link {
+    padding: 8px 20px;
+    font-size: 13px;
+    color: var(--text);
+    text-decoration: none;
+    transition: all 0.2s;
+    background: transparent;
+    border: none;
+    white-space: nowrap;
+}
+
+.side-link:hover {
+    background: var(--bg);
+    color: var(--primary);
+}
+
+.side-link + .side-link {
+    border-left: 1px solid var(--border);
+}
+
 /* Responsivo para Mobile */
 @media (max-width: 768px) {
     body {
@@ -669,6 +795,13 @@ textarea {
     .top-bar img {
         width: 40px;
         height: 40px;
+    }
+
+    /* Ensure side-links (pill) is centered on mobile */
+    .side-links {
+        align-self: center;
+        width: fit-content;
+        margin-top: 0;
     }
     
     .top-bar-right {
@@ -718,6 +851,30 @@ textarea {
         padding: 12px;
         height: 50px;
         min-height: 40px;
+    }
+
+    /* Ajuste dos botões para mobile */
+    .button-container {
+        flex-direction: column;
+        width: 100%;
+        gap: 12px;
+    }
+
+    .paste-button {
+        width: 100%;
+        justify-content: center;
+        border-radius: 12px;
+    }
+
+    .button {
+        width: 100%;
+        border-radius: 12px;
+        justify-content: center;
+    }
+
+    .middle-button {
+        width: 100% !important;
+        min-width: 0;
     }
     
     .clear-button {
@@ -851,4 +1008,10 @@ textarea {
 .textarea-success {
     animation: highlight 1s ease-out;
     border-color: var(--green-base) !important;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--green-hover);
+    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1); /* Light green shadow matching --green-hover */
 }

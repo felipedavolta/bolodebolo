@@ -665,16 +665,20 @@ export function parseStoreReport(text) {
         const descontoMatch = text.match(/Desconto\s*:\s*([\d.,]+)/i);
         const acrescimoMatch = text.match(/Acr[ée]scimo\s*:\s*([\d.,]+)/i);
 
-        if (!vendasMatch || !descontoMatch || !acrescimoMatch) {
-            const lines = text.split('\n').filter(l => l.trim().length > 0);
-            console.error('Linhas do relatório para debug:', lines.slice(-15).join('\n'));
-            throw new Error('Não foi possível encontrar os totais do relatório');
+        if (!vendasMatch) {
+            // Try to find total sales in another way or just proceed if we have items
+            const hasItems = text.includes('Valor Unitário:');
+            if (!hasItems) {
+                const lines = text.split('\n').filter(l => l.trim().length > 0);
+                console.error('Linhas do relatório para debug:', lines.slice(-15).join('\n'));
+                throw new Error('Não foi possível encontrar os dados do relatório (Vendas ou Itens)');
+            }
         }
 
         const totals = {
-            vendas: parseFloat(vendasMatch[1].replace('.', '').replace(',', '.') || 0),
-            desconto: parseFloat(descontoMatch[1].replace('.', '').replace(',', '.') || 0),
-            acrescimo: parseFloat(acrescimoMatch[1].replace('.', '').replace(',', '.') || 0)
+            vendas: vendasMatch ? parseFloat(vendasMatch[1].replace('.', '').replace(',', '.') || 0) : 0,
+            desconto: descontoMatch ? parseFloat(descontoMatch[1].replace('.', '').replace(',', '.') || 0) : 0,
+            acrescimo: acrescimoMatch ? parseFloat(acrescimoMatch[1].replace('.', '').replace(',', '.') || 0) : 0
         };
 
         let dateStartISO = null;
