@@ -172,6 +172,38 @@ h3 {
     color: #666;
 }
 
+.paste-button {
+    background: #f3f4f6; /* Gray background */
+    color: #4b5563; /* Dark gray text */
+    border: 1px solid var(--border);
+    border-right: none; /* Connect to copy button */
+    /* Rounded corners only on the left */
+    border-radius: 24px 0 0 24px;
+    padding: 0 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s, color 0.2s;
+    height: 48px; /* Same height as copy button */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    z-index: 1;
+}
+
+.paste-button:hover {
+    background: #e5e7eb; /* Darker gray on hover */
+    color: #1f2937;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    z-index: 2;
+}
+
+/* Ensure button is never hidden */
+.paste-button.hidden {
+    display: flex !important;
+}
+
 textarea { 
     box-sizing: border-box;
     width: 100%;
@@ -372,6 +404,7 @@ textarea {
     display: flex;
     justify-content: center;
     margin-top: 12px;
+    gap: 0; /* Remove gap to attach buttons */
 }
 
 .button {
@@ -388,11 +421,13 @@ textarea {
     height: 48px;
     font-weight: 500;
     cursor: pointer;
-    border-radius: 24px;
-    transition: all 0.2s ease;
+    /* Rounded corners only on the right */
+    border-radius: 0 24px 24px 0;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     width: 216px;
     justify-content: center;
+    border-left: none; /* Remove border between buttons */
 }
 
 .button svg {
@@ -407,12 +442,10 @@ textarea {
     background: var(--green-hover);
     color: white;
     border-color: transparent;
-    transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .button:active {
-    transform: translateY(0);
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
@@ -426,7 +459,6 @@ textarea {
 
 .button-disabled:hover {
     background: #e5e7eb !important;
-    transform: none !important;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
 }
 
@@ -434,8 +466,6 @@ textarea {
 .button-ready {
     background: var(--green-hover) !important;
     color: white !important;
-    animation: pulse 1s ease-in-out 3;
-    transform: scale(1.05);
 }
 
 /* Estado 3: Copiado (após clicar) - borda verde */
@@ -443,6 +473,8 @@ textarea {
     background: white !important;
     color: var(--green-hover) !important;
     border: 2px solid var(--green-hover) !important;
+    /* Compensa a borda extra para não mudar o tamanho */
+    padding: 10px 18px; 
 }
 
 .summary-section {

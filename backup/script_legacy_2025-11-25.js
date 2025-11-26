@@ -305,7 +305,8 @@ function extractFaturamentoQuiosque(text, categoria) {
             console.log(`[extractFaturamentoQuiosque] Categoria "${categoria}" encontrada na linha: "${line}"`);
             
             // Procura nas próximas linhas por um total
-            for (let j = i + 1; j < Math.min(i + 15, lines.length); j++) {
+            // Aumentado o limite de linhas para suportar quebras de página e listas longas
+            for (let j = i + 1; j < lines.length; j++) {
                 const nextLine = lines[j].trim();
                 
                 // Pula linhas vazias
@@ -1047,7 +1048,7 @@ document.removeEventListener('paste', null);
         const copyButtonLoja = document.getElementById('copyButton-loja');
 
         // Função auxiliar para copiar texto
-        async function copyText(text, button) {
+        async function copyText(text, button, otherButtonToReset) {
             try {
                 // Tenta usar a API moderna do clipboard
                 await navigator.clipboard.writeText(text);
@@ -1059,6 +1060,11 @@ document.removeEventListener('paste', null);
                 button.classList.add('button-copied');
                 button.style.animation = '';
                 button.style.transform = '';
+
+                // Reseta o outro botão se fornecido
+                if (otherButtonToReset && !otherButtonToReset.classList.contains('button-disabled')) {
+                    resetButtonToReady(otherButtonToReset);
+                }
                 
                 return true;
             } catch (err) {
@@ -1086,6 +1092,11 @@ document.removeEventListener('paste', null);
                         button.classList.add('button-copied');
                         button.style.animation = '';
                         button.style.transform = '';
+
+                        // Reseta o outro botão se fornecido
+                        if (otherButtonToReset && !otherButtonToReset.classList.contains('button-disabled')) {
+                            resetButtonToReady(otherButtonToReset);
+                        }
                         
                         return true;
                     }
@@ -1128,7 +1139,7 @@ document.removeEventListener('paste', null);
             revenueIds.forEach(id => document.getElementById(`revenue-${id}`).textContent = 'R$ 0,00');
         }
 
-        function processInputQuiosque() {
+        async function processInputQuiosque(autoCopy = false) {
             previewQuiosque.textContent = '';
             errorDiv.style.display = 'none';
             unknownBolosDiv.style.display = 'none';
@@ -1181,7 +1192,7 @@ document.removeEventListener('paste', null);
                         errorDiv.style.color = '';
                     }, 3000);
                     
-                    processInputLoja();
+                    processInputLoja(autoCopy);
                     return;
                 }
 
@@ -1212,6 +1223,10 @@ document.removeEventListener('paste', null);
                     
                     // Destaca o botão para o usuário clicar (Safari não permite cópia automática)
                     highlightCopyButton(copyButtonQuiosque);
+
+                    if (autoCopy) {
+                        await copyText(result, copyButtonQuiosque, copyButtonLoja);
+                    }
 
                     if (stats.unknownBolos?.length > 0) {
                         unknownBolosDiv.textContent = `Novo(s) sabor(es) identificado(s): ${stats.unknownBolos.join(', ')}. Não contabilizado(s) no resultado.`;
@@ -1509,7 +1524,7 @@ document.removeEventListener('paste', null);
             }
         }
 
-        function processInputLoja() {
+        async function processInputLoja(autoCopy = false) {
             previewLoja.textContent = '';
             errorDiv.style.display = 'none';
             unknownBolosDiv.style.display = 'none';
@@ -1561,7 +1576,7 @@ document.removeEventListener('paste', null);
                         errorDiv.style.color = '';
                     }, 3000);
                     
-                    processInputQuiosque();
+                    processInputQuiosque(autoCopy);
                     return;
                 }
 
@@ -1630,6 +1645,10 @@ document.removeEventListener('paste', null);
                     // Destaca o botão para o usuário clicar (Safari não permite cópia automática)
                     highlightCopyButton(copyButtonLoja);
 
+                    if (autoCopy) {
+                        await copyText(result, copyButtonLoja, copyButtonQuiosque);
+                    }
+
                     if (stats.unknownBolos?.length > 0) {
                         unknownBolosDiv.textContent = `Novo(s) sabor(es) identificado(s): ${stats.unknownBolos.join(', ')}. Não contabilizado(s) no resultado.`;
                         unknownBolosDiv.style.display = 'block';
@@ -1669,26 +1688,35 @@ document.removeEventListener('paste', null);
                 return;
             }
             
-            copyText(result, copyButtonLoja);
+            copyText(result, copyButtonLoja, copyButtonQuiosque);
         });
 
 
         // Handler do botão de colar relatório da loja
         const pasteButtonLoja = document.getElementById('pasteButton-loja');
         if (pasteButtonLoja) {
-            pasteButtonLoja.addEventListener('mousedown', async (event) => {
-                event.preventDefault();
-                event.stopPropagation();
+            pasteButtonLoja.addEventListener('click', async (event) => {
+                event.preventDefault(); // Previne comportamento padrão
+                
+                // Tenta focar no textarea primeiro
+                textareaLoja.focus();
+                
                 if (navigator.clipboard && navigator.clipboard.readText) {
                     try {
                         const text = await navigator.clipboard.readText();
-                        textareaLoja.value = text;
-                        textareaLoja.dispatchEvent(new Event('input', { bubbles: true }));
+                        if (text) {
+                            textareaLoja.value = text;
+                            // Dispara evento de input para processar e atualizar UI (esconder botão)
+                            textareaLoja.dispatchEvent(new Event('input', { bubbles: true }));
+                            // Dispara evento de paste para acionar o auto-copy se configurado
+                            textareaLoja.dispatchEvent(new Event('paste', { bubbles: true }));
+                        }
                     } catch (err) {
-                        alert('Não foi possível acessar a área de transferência. Permita o acesso ao clipboard no navegador.');
+                        console.warn('Erro ao ler clipboard:', err);
+                        // Fallback: tenta comando paste (raramente funciona em navegadores modernos por segurança)
+                        document.execCommand('paste');
                     }
                 } else {
-                    textareaLoja.focus();
                     document.execCommand('paste');
                 }
             });
@@ -1697,19 +1725,24 @@ document.removeEventListener('paste', null);
         // Handler do botão de colar relatório do quiosque
         const pasteButtonQuiosque = document.getElementById('pasteButton-quiosque');
         if (pasteButtonQuiosque) {
-            pasteButtonQuiosque.addEventListener('mousedown', async (event) => {
+            pasteButtonQuiosque.addEventListener('click', async (event) => {
                 event.preventDefault();
-                event.stopPropagation();
+                
+                textareaQuiosque.focus();
+                
                 if (navigator.clipboard && navigator.clipboard.readText) {
                     try {
                         const text = await navigator.clipboard.readText();
-                        textareaQuiosque.value = text;
-                        textareaQuiosque.dispatchEvent(new Event('input', { bubbles: true }));
+                        if (text) {
+                            textareaQuiosque.value = text;
+                            textareaQuiosque.dispatchEvent(new Event('input', { bubbles: true }));
+                            textareaQuiosque.dispatchEvent(new Event('paste', { bubbles: true }));
+                        }
                     } catch (err) {
-                        alert('Não foi possível acessar a área de transferência. Permita o acesso ao clipboard no navegador.');
+                        console.warn('Erro ao ler clipboard:', err);
+                        document.execCommand('paste');
                     }
                 } else {
-                    textareaQuiosque.focus();
                     document.execCommand('paste');
                 }
             });
@@ -1728,7 +1761,20 @@ document.removeEventListener('paste', null);
                 return;
             }
             
-            copyText(result, copyButtonQuiosque);
+            copyText(result, copyButtonQuiosque, copyButtonLoja);
+        });
+
+        // Auto-copy on paste
+        textareaQuiosque.addEventListener('paste', () => {
+            setTimeout(() => {
+                processInputQuiosque(true);
+            }, 50);
+        });
+
+        textareaLoja.addEventListener('paste', () => {
+            setTimeout(() => {
+                processInputLoja(true);
+            }, 50);
         });
 
         // Debounce function to prevent too many updates
@@ -1842,36 +1888,45 @@ document.removeEventListener('paste', null);
     document.getElementById('summary-valor-total').textContent = `R$ ${totalValor.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 }
 
-// Botões de limpar
+// Botões de limpar e colar
 function setupClearButtons() {
     const inputLoja = document.getElementById('input-loja');
     const inputQuiosque = document.getElementById('input-quiosque');
     const clearLoja = document.getElementById('clear-loja');
     const clearQuiosque = document.getElementById('clear-quiosque');
+    const pasteLoja = document.getElementById('pasteButton-loja');
+    const pasteQuiosque = document.getElementById('pasteButton-quiosque');
 
     // Mostra/esconde botão de limpar baseado no conteúdo
-    function toggleClearButton(textarea, button) {
+    function toggleButtons(textarea, clearBtn, pasteBtn) {
+        // O botão de colar agora é sempre visível (controlado via CSS)
+        // Apenas gerenciamos o botão de limpar
+        
         if (textarea.value.trim().length > 0) {
-            button.style.display = 'flex';
+            clearBtn.style.display = 'flex';
         } else {
-            button.style.display = 'none';
+            clearBtn.style.display = 'none';
         }
     }
 
     // Event listeners para mostrar/esconder botões
-    inputLoja.addEventListener('input', () => toggleClearButton(inputLoja, clearLoja));
-    inputQuiosque.addEventListener('input', () => toggleClearButton(inputQuiosque, clearQuiosque));
+    inputLoja.addEventListener('input', () => toggleButtons(inputLoja, clearLoja, pasteLoja));
+    inputQuiosque.addEventListener('input', () => toggleButtons(inputQuiosque, clearQuiosque, pasteQuiosque));
+
+    // Inicializa estado dos botões
+    toggleButtons(inputLoja, clearLoja, pasteLoja);
+    toggleButtons(inputQuiosque, clearQuiosque, pasteQuiosque);
 
     // Event listeners para limpar campos
     clearLoja.addEventListener('click', () => {
         inputLoja.value = '';
-        clearLoja.style.display = 'none';
+        toggleButtons(inputLoja, clearLoja, pasteLoja);
         inputLoja.dispatchEvent(new Event('input'));
     });
 
     clearQuiosque.addEventListener('click', () => {
         inputQuiosque.value = '';
-        clearQuiosque.style.display = 'none';
+        toggleButtons(inputQuiosque, clearQuiosque, pasteQuiosque);
         inputQuiosque.dispatchEvent(new Event('input'));
     });
 }

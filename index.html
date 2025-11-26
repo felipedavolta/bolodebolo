@@ -35,6 +35,13 @@
                     </div>
                 </div>
                 <div class="button-container">
+                    <button class="paste-button" id="pasteButton-loja">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        </svg>
+                        Colar
+                    </button>
                     <button id="copyButton-loja" class="button button-disabled">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -63,6 +70,13 @@
                     </div>
                 </div>
                 <div class="button-container">
+                    <button class="paste-button" id="pasteButton-quiosque">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        </svg>
+                        Colar
+                    </button>
                     <button id="copyButton-quiosque" class="button button-disabled">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -198,18 +212,11 @@
 
     <div id="last-modified" class="last-modified" aria-label="Data da última atualização"></div>
 
-    <script src="script.js"></script>
+    <script type="module" src="main.js"></script>
     <script>
         (function() {
-            try {
-                var el = document.getElementById('last-modified');
-                if (!el) return;
-                // Tenta usar a data de última modificação do documento; fallback para hoje
-                var dm = new Date(document.lastModified);
-                var dateObj = isNaN(dm.getTime()) ? new Date() : dm;
-                var formatted = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                el.textContent = 'Atualizado em ' + formatted;
-            } catch (e) { /* silencioso */ }
+            var el = document.getElementById('last-modified');
+            if (el) el.textContent = 'Atualizado em 25/11/2025';
         })();
     </script>
 </body>
