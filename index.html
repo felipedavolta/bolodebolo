@@ -105,86 +105,23 @@
     <div id="unknown-bolos" class="unknown-bolos"></div>
     
     <div class="dashboard">
-        <div class="dashboard-main">
-            <div class="dashboard-date" id="report-date"></div>
-            <div class="dashboard-section">
-                <h4>Resumo</h4>
-                <div class="dashboard-grid">
-                    <div class="metric-card highlight">
-                        <div class="metric-title">Total de Bolos</div>
-                        <div id="total-bolos" class="metric-value">0</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-title">Total de Fatias</div>
-                        <div id="total-fatias" class="metric-value">0</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dashboard-section">
-                <h4>Bolos por Categoria</h4>
-                <div class="dashboard-grid">
-                    <div class="metric-card small">
-                        <div class="metric-title">Bolos Grandes</div>
-                        <div id="bolos-grandes" class="metric-value">0</div>
-                    </div>
-                    <div class="metric-card small">
-                        <div class="metric-title">Bolos Mini</div>
-                        <div id="bolos-mini" class="metric-value">0</div>
-                    </div>
-                    <div class="metric-card small">
-                        <div class="metric-title">Bolos C</div>
-                        <div id="bolos-c" class="metric-value">0</div>
-                    </div>
-                    <div class="metric-card small">
-                        <div class="metric-title">Bolos Especiais</div>
-                        <div id="bolos-especiais" class="metric-value">0</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="dashboard-section">
-                <h4>Canais de Venda</h4>
-                <div class="dashboard-grid">
-                    <div class="metric-card">
-                        <div class="metric-title">Bolos Loja</div>
-                        <div id="bolos-loja" class="metric-value">0</div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-title">Bolos iFood</div>
-                        <div id="bolos-ifood" class="metric-value">0</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        <div class="dashboard-date" id="report-date"></div>
         <div class="revenue-section">
             <h4>Faturamento</h4>
-            <div class="revenue-grid">
-                <div class="revenue-item revenue-total">
-                    <span>Total</span>
-                    <span id="revenue-total">R$ 0,00</span>
-                </div>
-                <div class="revenue-item">
-                    <span>Bebidas</span>
-                    <span id="revenue-bebidas">R$ 0,00</span>
-                </div>
-                <div class="revenue-item">
-                    <span>Alimentos</span>
-                    <span id="revenue-alimentos">R$ 0,00</span>
-                </div>
-                <div class="revenue-item">
-                    <span>Bolos</span>
-                    <span id="revenue-bolos">R$ 0,00</span>
-                </div>
-                <div class="revenue-item">
-                    <span>Artigos Festa</span>
-                    <span id="revenue-artigos">R$ 0,00</span>
-                </div>
-                <div class="revenue-item">
-                    <span>Fatias</span>
-                    <span id="revenue-fatias">R$ 0,00</span>
-                </div>
+            <div class="revenue-table-wrapper">
+                <table class="revenue-table">
+                    <thead>
+                        <tr>
+                            <th>Categoria</th>
+                            <th>Barra</th>
+                            <th>Millennium</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="revenue-table-body">
+                        <!-- Rows populated by JS -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -195,7 +132,7 @@
     <script>
         (function() {
             var el = document.getElementById('last-modified');
-            if (el) el.textContent = 'Atualizado em 25/11/2025';
+            if (el) el.textContent = 'Atualizado em 26/11/2025';
         })();
     </script>
 </body>

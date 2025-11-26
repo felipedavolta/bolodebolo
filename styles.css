@@ -337,22 +337,20 @@ textarea {
 .dashboard {
     display: none;
     margin-top: 32px;
-    grid-template-columns: 2fr 1fr;
+    /* Removed grid layout as we only have one column now */
+    flex-direction: column;
     gap: 24px;
 }
 
-.dashboard-main {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+.dashboard-date {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 1rem;
+    text-align: center;
 }
 
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 16px;
-    margin-top: 12px;
-}
+/* Removed .dashboard-main and .dashboard-grid styles as they are no longer used */
 
 .metric-card {
     padding: 16px;
@@ -774,6 +772,66 @@ textarea {
     border-left: 1px solid var(--border);
 }
 
+/* Revenue Table Styles */
+.revenue-table-wrapper {
+    overflow-x: auto;
+    margin-top: 1rem;
+}
+
+.revenue-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.revenue-table th,
+.revenue-table td {
+    padding: 0.75rem;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+}
+
+.revenue-table th:first-child,
+.revenue-table td:first-child {
+    text-align: left;
+    font-weight: 500;
+}
+
+.revenue-table th {
+    background-color: var(--bg);
+    color: var(--text);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+}
+
+.revenue-table tr:last-child td {
+    border-bottom: none;
+}
+
+.revenue-table .row-total td {
+    font-weight: 700;
+    background-color: var(--bg);
+    border-top: 2px solid var(--border);
+}
+
+.revenue-table .row-acrescimo td {
+    color: var(--green-text);
+}
+
+.revenue-table .row-desconto td {
+    color: #ef4444; /* Red for discounts */
+}
+
+@media (max-width: 768px) {
+    .revenue-table th,
+    .revenue-table td {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+
 /* Responsivo para Mobile */
 @media (max-width: 768px) {
     body {
@@ -1049,4 +1107,20 @@ textarea:focus {
     outline: none;
     border-color: var(--green-hover);
     box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1); /* Light green shadow matching --green-hover */
+}
+
+/* Ensure table cells don't break lines */
+.revenue-table td {
+    white-space: nowrap;
+}
+
+/* Adjust font size on smaller screens to fit table */
+@media (max-width: 480px) {
+    .revenue-table {
+        font-size: 0.75rem;
+    }
+    .revenue-table th,
+    .revenue-table td {
+        padding: 0.4rem;
+    }
 }

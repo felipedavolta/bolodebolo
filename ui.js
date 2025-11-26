@@ -14,6 +14,12 @@ const previewLoja = document.getElementById('preview-loja');
 const errorDiv = document.getElementById('error');
 const unknownBolosDiv = document.getElementById('unknown-bolos');
 
+// State for revenue comparison
+const revenueState = {
+    loja: null,
+    quiosque: null
+};
+
 // Helper functions
 function getButtonDefaultText(button) {
     if (button.id === 'copyButton-loja') return 'Copiar Barra';
@@ -100,21 +106,81 @@ function resetButtonToReady(button) {
     button.classList.add('button-ready');
 }
 
-function clearDashboard() {
-    document.getElementById('total-bolos').textContent = '0';
-    document.getElementById('bolos-grandes').textContent = '0';
-    document.getElementById('bolos-mini').textContent = '0';
-    document.getElementById('bolos-c').textContent = '0';
-    document.getElementById('bolos-especiais').textContent = '0';
-    document.getElementById('bolos-loja').textContent = '0';
-    document.getElementById('bolos-ifood').textContent = '0';
-    document.getElementById('total-fatias').textContent = '0';
-    
-    const revenueIds = ['total', 'bebidas', 'alimentos', 'bolos', 'artigos', 'fatias'];
-    revenueIds.forEach(id => {
-        const el = document.getElementById(`revenue-${id}`);
-        if (el) el.textContent = 'R$ 0,00';
+function updateRevenueTable() {
+    const tbody = document.getElementById('revenue-table-body');
+    if (!tbody) return;
+
+    const categories = [
+        { id: 'total', label: 'TOTAL', isTotal: true },
+        { id: 'bebidas', label: 'BEBIDAS' },
+        { id: 'alimentos', label: 'ALIMENTOS' },
+        { id: 'bolos', label: 'BOLO' },
+        { id: 'artigos', label: 'ARTIGOS FESTA' },
+        { id: 'fatias', label: 'FATIAS' },
+        { id: 'acrescimo', label: 'ACRÉSCIMO', isAcrescimo: true },
+        { id: 'desconto', label: 'DESCONTOS', isDesconto: true }
+    ];
+
+    const formatCurrency = (val) => {
+        const num = Number(val || 0);
+        return `R$ ${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    };
+
+    let html = '';
+
+    categories.forEach(cat => {
+        const lojaVal = revenueState.loja ? (revenueState.loja[cat.id] || 0) : 0;
+        const quiosqueVal = revenueState.quiosque ? (revenueState.quiosque[cat.id] || 0) : 0;
+        
+        // For discounts, we want to show them as negative in the total calculation if they are positive numbers in the object
+        // But usually they are stored as negative or positive depending on parser.
+        // In parsers.js:
+        // Loja: desconto is positive number.
+        // Quiosque: desconto is positive number.
+        // Total calculation subtracts them.
+        // Let's display them as is, but handle total column correctly.
+        
+        let totalVal = 0;
+        if (cat.id === 'desconto') {
+             // If both are positive representing discount amount, total discount amount is sum.
+             totalVal = lojaVal + quiosqueVal;
+        } else {
+             totalVal = lojaVal + quiosqueVal;
+        }
+
+        let rowClass = '';
+        if (cat.isTotal) rowClass = 'row-total';
+        else if (cat.isAcrescimo) rowClass = 'row-acrescimo';
+        else if (cat.isDesconto) rowClass = 'row-desconto';
+
+        html += `
+            <tr class="${rowClass}">
+                <td>${cat.label}</td>
+                <td>${formatCurrency(lojaVal)}</td>
+                <td>${formatCurrency(quiosqueVal)}</td>
+                <td>${formatCurrency(totalVal)}</td>
+            </tr>
+        `;
     });
+
+    tbody.innerHTML = html;
+
+    // Ensure dashboard is visible when table is updated
+    const dashboard = document.querySelector('.dashboard');
+    if (dashboard) {
+        dashboard.style.display = 'grid';
+    }
+}
+
+function clearDashboard() {
+    // Only clear revenue state if explicitly needed, but for now we keep it for comparison.
+    // We might want to clear the date though?
+    document.getElementById('report-date').textContent = '';
+    
+    revenueState.loja = revenueState.loja || null;
+    revenueState.quiosque = revenueState.quiosque || null;
+    
+    updateRevenueTable();
 }
 
 function updateDashboard(stats) {
@@ -137,33 +203,8 @@ function updateDashboard(stats) {
         dateDiv.textContent = '';
     }
     
-    const formatNumber = n => Math.round(n || 0).toString();
-    const formatCurrency = v => {
-        const value = Number(v || 0);
-        return `R$ ${value.toLocaleString('pt-BR', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        })}`;
-    };
-    
-    document.getElementById('total-bolos').textContent = formatNumber(stats.bolosLoja + stats.bolosIfood);
-    
-    document.getElementById('bolos-grandes').textContent = formatNumber(stats.bolosGrandes || 0);
-    document.getElementById('bolos-mini').textContent = formatNumber(stats.bolosMini || 0);
-    document.getElementById('bolos-c').textContent = formatNumber(stats.bolosC || 0);
-    document.getElementById('bolos-especiais').textContent = formatNumber(stats.bolosEspeciais || 0);
-    document.getElementById('bolos-loja').textContent = formatNumber(stats.bolosLoja || 0);
-    document.getElementById('bolos-ifood').textContent = formatNumber(stats.bolosIfood || 0);
-    document.getElementById('total-fatias').textContent = formatNumber(stats.totalFatias);
-
-    if (stats.revenue) {
-        document.getElementById('revenue-total').textContent = formatCurrency(stats.revenue.total);
-        document.getElementById('revenue-bebidas').textContent = formatCurrency(stats.revenue.bebidas);
-        document.getElementById('revenue-alimentos').textContent = formatCurrency(stats.revenue.alimentos);
-        document.getElementById('revenue-bolos').textContent = formatCurrency(stats.revenue.bolos);
-        document.getElementById('revenue-artigos').textContent = formatCurrency(stats.revenue.artigos);
-        document.getElementById('revenue-fatias').textContent = formatCurrency(stats.revenue.fatias);
-    }
+    // Removed metric updates as elements were removed from HTML
+    // Revenue update is now handled by updateRevenueTable called separately
 }
 
 function updateSummaryTotal() {
@@ -312,6 +353,12 @@ async function processQuiosqueLogic(text, autoCopy) {
         if (result && stats) {
             previewQuiosque.textContent = result;
             updateDashboard(stats);
+            
+            // Update revenue state for Quiosque
+            if (stats.revenue) {
+                revenueState.quiosque = stats.revenue;
+                updateRevenueTable();
+            }
 
             document.getElementById('summary-quiosque').textContent = `${totalBolos + totalBolosIf} bolos`;
             document.getElementById('summary-quiosque-ifood').textContent = `(${totalBolosIf} iFood)`;
@@ -397,6 +444,12 @@ async function processLojaLogic(text, autoCopy) {
         if (result && stats) {
             previewLoja.textContent = result;
             updateDashboard(stats);
+
+            // Update revenue state for Loja
+            if (stats.revenue) {
+                revenueState.loja = stats.revenue;
+                updateRevenueTable();
+            }
 
             document.getElementById('summary-loja').textContent = `${totalBolos} bolos`;
             document.getElementById('summary-loja-ifood').textContent = `(${totalBolosIf} iFood)`;
@@ -523,4 +576,7 @@ export function init() {
         textareaMain.focus();
         textareaMain.select();
     });
+    
+    // Initialize empty table
+    updateRevenueTable();
 }

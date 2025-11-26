@@ -645,7 +645,9 @@ export function processSalesReport(text) {
                     alimentos: faturamentoAlimentos,
                     bolos: faturamentoBolosCombinado,
                     artigos: faturamentoArtigosFesta,
-                    fatias: faturamentoFatias
+                    fatias: faturamentoFatias,
+                    acrescimo: faturamentoAcrescimo,
+                    desconto: faturamentoDesconto
                 }
             }
         };
