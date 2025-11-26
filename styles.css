@@ -108,6 +108,10 @@ h1 {
     color: var(--text);
 }
 
+h1 span {
+    display: inline;
+}
+
 h2 {
     font-size: 1.5rem;
     font-weight: 600;
@@ -737,7 +741,7 @@ textarea {
     position: relative;
 }
 
-/* Side Links (Pill) - Now inside Top Bar */
+/* Side Links (Pill) - Default for Desktop (Top Right) */
 .side-links {
     display: flex;
     background: var(--card-bg);
@@ -745,6 +749,9 @@ textarea {
     border-radius: 20px;
     overflow: hidden;
     box-shadow: var(--shadow);
+    position: absolute;
+    top: -80px; /* Move up into top-bar area */
+    right: 0;
 }
 
 .side-link {
@@ -782,26 +789,54 @@ textarea {
     }
     
     .top-bar-left {
-        flex-direction: column;
+        flex-direction: row;
         gap: 12px;
         align-items: center;
-        text-align: center;
+        text-align: left;
+        justify-content: flex-start;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 4px;
     }
     
     .top-bar-left h1 {
-        font-size: 1.25rem;
+        font-size: 1.4rem;
+        font-weight: 700;
+        line-height: 1.2;
+        display: block;
+    }
+
+    .top-bar-left h1 span {
+        display: inline;
     }
     
     .top-bar img {
-        width: 40px;
-        height: 40px;
+        width: 48px;
+        height: 48px;
     }
 
-    /* Ensure side-links (pill) is centered on mobile */
+    /* Ensure side-links (pill) is centered on mobile and moved below input section */
     .side-links {
+        position: static; /* Reset absolute positioning */
+        order: 3; /* Move to bottom of flex container */
         align-self: center;
         width: fit-content;
-        margin-top: 0;
+        margin-top: 16px;
+        margin-bottom: 0;
+    }
+
+    /* Reorder content wrapper for mobile */
+    .content-wrapper {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .input-section {
+        order: 1;
+        margin-bottom: 16px;
+        width: 100%; /* Force full width */
+        box-sizing: border-box; /* Include padding in width */
+        padding: 16px; /* Match summary section padding */
     }
     
     .top-bar-right {
