@@ -55,6 +55,41 @@
     .revenue-item {
         background: var(--bg);
     }
+
+    /* Dark Mode Button Overrides */
+    .paste-button, 
+    .button {
+        background-color: #2d2d2d;
+        color: #e5e7eb;
+        border-color: #404040;
+    }
+
+    .system-link,
+    .system-link-inline {
+        background-color: #18181b; /* Almost black */
+        color: #9ca3af; /* Medium gray */
+        border: none;
+    }
+
+    .paste-button:hover {
+        background-color: #3d3d3d;
+        color: #ffffff;
+    }
+
+    /* Manter hover verde para botões de ação e links */
+    .button:not(.button-disabled):hover,
+    .system-link:hover,
+    .system-link-inline:hover {
+        background-color: var(--green-hover);
+        color: white;
+        border-color: var(--green-hover); /* Add border back on hover for consistency or keep none? Usually hover adds color. */
+    }
+
+    .button-disabled {
+        background-color: #1a1a1a !important;
+        color: #555 !important;
+        border-color: #333 !important;
+    }
 }
 
 body { 
@@ -126,7 +161,7 @@ h3 {
     background: white;
     color: var(--green-hover);
     border: 1px solid var(--green-hover);
-    border-radius: 8px;
+    border-radius: 50px;
     text-decoration: none;
     font-size: 14px;
     font-weight: 500;
@@ -484,6 +519,7 @@ textarea {
     margin: 24px auto;
     max-width: 1200px;
     box-shadow: var(--shadow);
+    box-sizing: border-box;
 }
 
 .summary-grid {
@@ -497,6 +533,11 @@ textarea {
     flex-direction: column;
     gap: 8px;
     text-align: center;
+    transition: opacity 0.3s ease;
+}
+
+.summary-item.empty {
+    opacity: 0.2;
 }
 
 .summary-label {
@@ -529,6 +570,7 @@ textarea {
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
+    box-sizing: border-box;
 }
 
 .top-bar-left {
@@ -554,7 +596,7 @@ textarea {
     color: #1e293b;
     text-decoration: none;
     border: 1px solid #e2e8f0;
-    border-radius: 24px;
+    border-radius: 50px;
     font-size: 14px;
     font-weight: 500;
     transition: all 0.2s ease;

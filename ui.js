@@ -178,6 +178,30 @@ function updateSummaryTotal() {
     document.getElementById('summary-valor-total').textContent = `R$ ${totalValor.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 }
 
+function updateSummaryItemOpacity(elementId, count, value) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    const item = element.parentElement;
+    if (count === 0 && value === 0) {
+        item.classList.add('empty');
+    } else {
+        item.classList.remove('empty');
+    }
+}
+
+function resetSummary(type) {
+    const suffix = type === 'loja' ? 'loja' : 'quiosque';
+    document.getElementById(`summary-${suffix}`).textContent = '0 bolos';
+    document.getElementById(`summary-${suffix}-ifood`).textContent = '(0 iFood)';
+    document.getElementById(`summary-${suffix}-valor`).textContent = 'R$ 0,00';
+    
+    const el = document.getElementById(`summary-${suffix}`);
+    if (el && el.parentElement) {
+        el.parentElement.classList.add('empty');
+    }
+    updateSummaryTotal();
+}
+
 async function processInputQuiosque(autoCopy = false) {
     previewQuiosque.textContent = '';
     errorDiv.style.display = 'none';
@@ -193,6 +217,7 @@ async function processInputQuiosque(autoCopy = false) {
         if (!text.trim()) {
             copyButtonQuiosque.classList.remove('button-ready', 'button-copied');
             copyButtonQuiosque.classList.add('button-disabled');
+            resetSummary('quiosque');
             return;
         }
 
@@ -247,6 +272,8 @@ async function processInputQuiosque(autoCopy = false) {
             document.getElementById('summary-quiosque-ifood').textContent = `(${totalBolosIf} iFood)`;
             document.getElementById('summary-quiosque-valor').textContent = `R$ ${totalFaturado.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
+            updateSummaryItemOpacity('summary-quiosque', totalBolos + totalBolosIf, totalFaturado);
+
             updateSummaryTotal();
             
             highlightCopyButton(copyButtonQuiosque);
@@ -291,6 +318,7 @@ async function processInputLoja(autoCopy = false) {
         if (!text.trim()) {
             copyButtonLoja.classList.remove('button-ready', 'button-copied');
             copyButtonLoja.classList.add('button-disabled');
+            resetSummary('loja');
             return;
         }
 
@@ -374,6 +402,8 @@ async function processInputLoja(autoCopy = false) {
             document.getElementById('summary-loja').textContent = `${totalBolos} bolos`;
             document.getElementById('summary-loja-ifood').textContent = `(${totalBolosIf} iFood)`;
             document.getElementById('summary-loja-valor').textContent = `R$ ${totalFaturado.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+            updateSummaryItemOpacity('summary-loja', totalBolos, totalFaturado);
 
             updateSummaryTotal();
             
