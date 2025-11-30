@@ -15,82 +15,7 @@
     --green-light: #d1fae5;
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --primary: #4aba64;
-        --primary-hover: #3d9651;
-        --bg: #1e1e1e;
-        --text: #d4d4d4;
-        --border: #3e3e3e;
-        --card-bg: #252526;
-        --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.2);
-    }
 
-    body {
-        background: var(--bg);
-        color: var(--text);
-    }
-
-    .column {
-        background: var(--card-bg);
-    }
-
-    textarea {
-        background: var(--bg);
-        color: var(--text);
-    }
-
-    .metric-card {
-        background: var(--card-bg);
-    }
-
-    .metric-card.highlight {
-        background: var(--card-bg);
-    }
-
-    .revenue-section {
-        background: var(--card-bg);
-    }
-
-    .revenue-item {
-        background: var(--bg);
-    }
-
-    /* Dark Mode Button Overrides */
-    .paste-button, 
-    .button {
-        background-color: #2d2d2d;
-        color: #e5e7eb;
-        border-color: #404040;
-    }
-
-    .system-link,
-    .system-link-inline {
-        background-color: #18181b; /* Almost black */
-        color: #9ca3af; /* Medium gray */
-        border: none;
-    }
-
-    .paste-button:hover {
-        background-color: #3d3d3d;
-        color: #ffffff;
-    }
-
-    /* Manter hover verde para botões de ação e links */
-    .button:not(.button-disabled):hover,
-    .system-link:hover,
-    .system-link-inline:hover {
-        background-color: var(--green-hover);
-        color: white;
-        border-color: var(--green-hover); /* Add border back on hover for consistency or keep none? Usually hover adds color. */
-    }
-
-    .button-disabled {
-        background-color: #1a1a1a !important;
-        color: #555 !important;
-        border-color: #333 !important;
-    }
-}
 
 body { 
     padding: 40px;
@@ -1122,5 +1047,83 @@ textarea:focus {
     .revenue-table th,
     .revenue-table td {
         padding: 0.4rem;
+    }
+}
+
+/* Dark Mode Support - Moved to end to override other styles */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary: #4aba64;
+        --primary-hover: #3d9651;
+        --bg: #1e1e1e;
+        --text: #d4d4d4;
+        --border: #3e3e3e;
+        --card-bg: #252526;
+        --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.2);
+    }
+
+    body {
+        background: var(--bg);
+        color: var(--text);
+    }
+
+    .column {
+        background: var(--card-bg);
+    }
+
+    textarea {
+        background: var(--bg);
+        color: var(--text);
+    }
+
+    .metric-card {
+        background: var(--card-bg);
+    }
+
+    .metric-card.highlight {
+        background: var(--card-bg);
+    }
+
+    .revenue-section {
+        background: var(--card-bg);
+    }
+
+    .revenue-item {
+        background: var(--bg);
+    }
+
+    /* Dark Mode Button Overrides */
+    .paste-button, 
+    .button {
+        background-color: #2d2d2d;
+        color: #e5e7eb;
+        border-color: #404040;
+    }
+
+    .system-link,
+    .system-link-inline {
+        background-color: #18181b; /* Almost black */
+        color: #9ca3af; /* Medium gray */
+        border: none;
+    }
+
+    .paste-button:hover {
+        background-color: #3d3d3d;
+        color: #ffffff;
+    }
+
+    /* Manter hover verde para botões de ação e links */
+    .button:not(.button-disabled):hover,
+    .system-link:hover,
+    .system-link-inline:hover {
+        background-color: var(--green-hover);
+        color: white;
+        border-color: var(--green-hover); /* Add border back on hover for consistency or keep none? Usually hover adds color. */
+    }
+
+    .button-disabled {
+        background-color: #1a1a1a !important;
+        color: #555 !important;
+        border-color: #333 !important;
     }
 }
