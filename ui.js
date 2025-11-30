@@ -511,8 +511,46 @@ function setupClearButton() {
     });
 }
 
+function setupThemeToggle() {
+    const themeToggle = document.getElementById('theme-toggle');
+    if (!themeToggle) return;
+    
+    const sunIcon = themeToggle.querySelector('.sun-icon');
+    const moonIcon = themeToggle.querySelector('.moon-icon');
+    
+    function updateTheme(isDark) {
+        if (isDark) {
+            document.body.classList.add('dark-mode');
+            sunIcon.style.display = 'block';
+            moonIcon.style.display = 'none';
+        } else {
+            document.body.classList.remove('dark-mode');
+            sunIcon.style.display = 'none';
+            moonIcon.style.display = 'block';
+        }
+    }
+
+    // Check saved theme or system preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        updateTheme(savedTheme === 'dark');
+    } else {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        updateTheme(prefersDark);
+    }
+
+    themeToggle.addEventListener('click', () => {
+        const isDark = document.body.classList.contains('dark-mode');
+        const newIsDark = !isDark;
+        updateTheme(newIsDark);
+        localStorage.setItem('theme', newIsDark ? 'dark' : 'light');
+    });
+}
+
 export function init() {
     document.removeEventListener('paste', null);
+
+    setupThemeToggle();
 
     copyButtonLoja.addEventListener('click', () => {
         const resultToCopy = previewLoja.textContent;

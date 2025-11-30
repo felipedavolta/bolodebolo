@@ -333,6 +333,11 @@ textarea {
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .revenue-grid {
@@ -502,6 +507,15 @@ textarea {
     margin-left: auto;
     margin-right: auto;
     box-sizing: border-box;
+    position: relative; /* Ensure z-index works if needed */
+    min-height: 80px; /* Ensure height for absolute positioning alignment */
+}
+
+.top-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    z-index: 10; /* Ensure it's above other elements */
 }
 
 .top-bar-left {
@@ -618,6 +632,7 @@ textarea {
     top: 24px;
     opacity: 1;
     visibility: visible;
+    z-index: 1000; /* Ensure badge is on top */
 }
 
 .detection-badge.hidden {
@@ -673,8 +688,10 @@ textarea {
     overflow: hidden;
     box-shadow: var(--shadow);
     position: absolute;
-    top: -80px; /* Move up into top-bar area */
-    right: 0;
+    top: -82px; /* Aligned with theme toggle */
+    right: 80px; /* Give space for theme toggle */
+    height: 36px; /* Match theme toggle height */
+    align-items: center;
 }
 
 .side-link {
@@ -823,7 +840,10 @@ textarea {
     }
     
     .top-bar-right {
-        justify-content: center;
+        position: absolute;
+        top: 22px;
+        right: 16px;
+        justify-content: flex-end;
     }
     
     .system-buttons {
@@ -1050,86 +1070,111 @@ textarea:focus {
     }
 }
 
+/* Theme Toggle Button */
+.theme-toggle {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: var(--shadow);
+}
+
+.theme-toggle:hover {
+    background-color: var(--bg);
+    color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 /* Dark Mode Support - Moved to end to override other styles */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --primary: #4aba64;
-        --primary-hover: #3d9651;
-        --bg: #1e1e1e;
-        --text: #d4d4d4;
-        --border: #3e3e3e;
-        --card-bg: #252526;
-        --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.2);
-    }
+/* Dark Mode Styles - Applied via class for toggling */
+body.dark-mode {
+    --primary: #4aba64;
+    --primary-hover: #3d9651;
+    --bg: #1e1e1e;
+    --text: #d4d4d4;
+    --border: #3e3e3e;
+    --card-bg: #252526;
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.2);
+    
+    background: var(--bg);
+    color: var(--text);
+}
 
-    body {
-        background: var(--bg);
-        color: var(--text);
-    }
+body.dark-mode .column {
+    background: var(--card-bg);
+}
 
-    .column {
-        background: var(--card-bg);
-    }
+body.dark-mode textarea {
+    background: var(--bg);
+    color: var(--text);
+}
 
-    textarea {
-        background: var(--bg);
-        color: var(--text);
-    }
+body.dark-mode .metric-card,
+body.dark-mode .metric-card.highlight,
+body.dark-mode .revenue-section {
+    background: var(--card-bg);
+}
 
-    .metric-card {
-        background: var(--card-bg);
-    }
+body.dark-mode .revenue-item {
+    background: var(--bg);
+}
 
-    .metric-card.highlight {
-        background: var(--card-bg);
-    }
+/* Dark Mode Button Overrides */
+body.dark-mode .paste-button, 
+body.dark-mode .button {
+    background-color: #2d2d2d;
+    color: #e5e7eb;
+    border-color: #404040;
+}
 
-    .revenue-section {
-        background: var(--card-bg);
-    }
+body.dark-mode .system-link,
+body.dark-mode .system-link-inline {
+    background-color: #18181b;
+    color: #9ca3af;
+    border: none;
+}
 
-    .revenue-item {
-        background: var(--bg);
-    }
+body.dark-mode .paste-button:hover {
+    background-color: #3d3d3d;
+    color: #ffffff;
+}
 
-    /* Dark Mode Button Overrides */
-    .paste-button, 
-    .button {
-        background-color: #2d2d2d;
-        color: #e5e7eb;
-        border-color: #404040;
-    }
+/* Manter hover verde para botões de ação e links */
+body.dark-mode .button:not(.button-disabled):hover,
+body.dark-mode .system-link:hover,
+body.dark-mode .system-link-inline:hover {
+    background-color: var(--green-hover);
+    color: white;
+    border-color: var(--green-hover);
+}
 
-    .system-link,
-    .system-link-inline {
-        background-color: #18181b; /* Almost black */
-        color: #9ca3af; /* Medium gray */
-        border: none;
-    }
+body.dark-mode .button-disabled {
+    background-color: #1a1a1a !important;
+    color: #555 !important;
+    border-color: #333 !important;
+}
 
-    .paste-button:hover {
-        background-color: #3d3d3d;
-        color: #ffffff;
-    }
+body.dark-mode .button-copied {
+    background-color: #2d2d2d !important;
+    color: var(--green-hover) !important;
+    border-color: var(--green-hover) !important;
+}
 
-    /* Manter hover verde para botões de ação e links */
-    .button:not(.button-disabled):hover,
-    .system-link:hover,
-    .system-link-inline:hover {
-        background-color: var(--green-hover);
-        color: white;
-        border-color: var(--green-hover); /* Add border back on hover for consistency or keep none? Usually hover adds color. */
-    }
+body.dark-mode .theme-toggle:hover {
+    background-color: #3d3d3d;
+    color: #ffffff;
+}
 
-    .button-disabled {
-        background-color: #1a1a1a !important;
-        color: #555 !important;
-        border-color: #333 !important;
-    }
-
-    .button-copied {
-        background-color: #2d2d2d !important;
-        color: var(--green-hover) !important;
-        border-color: var(--green-hover) !important;
-    }
+body.dark-mode .theme-toggle {
+    background-color: #2d2d2d;
+    border-color: #404040;
+    color: #e5e7eb;
 }
