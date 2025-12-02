@@ -24,6 +24,7 @@ body {
     color: var(--text);
     line-height: 1.5;
     margin: 0;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1 {
@@ -70,6 +71,7 @@ h3 {
     padding: 24px;
     border-radius: 12px;
     box-shadow: var(--shadow);
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .column-header {
@@ -181,6 +183,7 @@ textarea {
     white-space: pre;
     min-height: 40px;
     overflow: auto;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Oculta a barra de rolagem no Safari/WebKit */
@@ -329,7 +332,7 @@ textarea {
 }
 
 .revenue-section {
-    background: white;
+    background: var(--card-bg);
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
@@ -338,6 +341,43 @@ textarea {
     margin-right: auto;
     width: 100%;
     box-sizing: border-box;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.revenue-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.revenue-header h4 {
+    margin: 0;
+}
+
+.chevron-icon {
+    transition: transform 0.3s ease;
+    color: var(--text);
+    opacity: 0.6;
+}
+
+.revenue-section.collapsed .chevron-icon {
+    transform: rotate(-90deg);
+}
+
+.revenue-content {
+    max-height: 1000px; /* Arbitrary large height */
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, margin-top 0.3s ease;
+    opacity: 1;
+    margin-top: 1rem;
+}
+
+.revenue-section.collapsed .revenue-content {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
 }
 
 .revenue-grid {
@@ -456,6 +496,7 @@ textarea {
     max-width: 1200px;
     box-shadow: var(--shadow);
     box-sizing: border-box;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .summary-grid {
@@ -594,6 +635,7 @@ textarea {
     box-shadow: var(--shadow);
     max-width: 100%;
     margin: 0 auto 24px auto;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .input-header {
@@ -692,6 +734,7 @@ textarea {
     right: 80px; /* Give space for theme toggle */
     height: 36px; /* Match theme toggle height */
     align-items: center;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .side-link {
@@ -746,6 +789,7 @@ textarea {
     text-transform: uppercase;
     font-size: 0.8rem;
     letter-spacing: 0.05em;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .revenue-table tr:last-child td {
@@ -756,6 +800,7 @@ textarea {
     font-weight: 700;
     background-color: var(--bg);
     border-top: 2px solid var(--border);
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 .revenue-table .row-acrescimo td {
@@ -1177,4 +1222,8 @@ body.dark-mode .theme-toggle {
     background-color: #2d2d2d;
     border-color: #404040;
     color: #e5e7eb;
+}
+
+body.dark-mode .revenue-table .row-acrescimo td {
+    color: #4ade80; /* Lighter green for dark mode */
 }

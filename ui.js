@@ -547,10 +547,22 @@ function setupThemeToggle() {
     });
 }
 
+function setupRevenueToggle() {
+    const revenueHeader = document.querySelector('.revenue-header');
+    const revenueSection = document.querySelector('.revenue-section');
+    
+    if (revenueHeader && revenueSection) {
+        revenueHeader.addEventListener('click', () => {
+            revenueSection.classList.toggle('collapsed');
+        });
+    }
+}
+
 export function init() {
     document.removeEventListener('paste', null);
 
     setupThemeToggle();
+    setupRevenueToggle();
 
     copyButtonLoja.addEventListener('click', () => {
         const resultToCopy = previewLoja.textContent;

@@ -124,22 +124,29 @@
     
     <div class="dashboard">
         <div class="dashboard-date" id="report-date"></div>
-        <div class="revenue-section">
-            <h4>Faturamento</h4>
-            <div class="revenue-table-wrapper">
-                <table class="revenue-table">
-                    <thead>
-                        <tr>
-                            <th>Categoria</th>
-                            <th>Barra</th>
-                            <th>Millennium</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="revenue-table-body">
-                        <!-- Rows populated by JS -->
-                    </tbody>
-                </table>
+        <div class="revenue-section collapsed">
+            <div class="revenue-header">
+                <h4>Faturamento</h4>
+                <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </div>
+            <div class="revenue-content">
+                <div class="revenue-table-wrapper">
+                    <table class="revenue-table">
+                        <thead>
+                            <tr>
+                                <th>Categoria</th>
+                                <th>Barra</th>
+                                <th>Millennium</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="revenue-table-body">
+                            <!-- Rows populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -150,7 +157,7 @@
     <script>
         (function() {
             var el = document.getElementById('last-modified');
-            if (el) el.textContent = 'Atualizado em 26/11/2025';
+            if (el) el.textContent = 'Atualizado em 02/12/2025';
         })();
     </script>
 </body>
