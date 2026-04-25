@@ -1,23 +1,45 @@
+/* Área de título padronizada para seções principais */
+.section-title-area {
+    width: 100%;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.section-title {
+    margin: 0;
+    font-size: 1.35rem;
+    color: #263238;
+    font-weight: 700;
+    font-family: inherit;
+    letter-spacing: -0.5px;
+}
 /* Layout flexível para input + resumo lado a lado */
 .main-flex-row {
     display: flex;
     flex-direction: row;
     gap: 32px;
-    align-items: flex-start;
-    justify-content: flex-start;
+    align-items: stretch;
+    justify-content: center;
     width: 100%;
+    min-width: 0;
 }
 
-.main-flex-row .input-section {
-    flex: 1 1 50%;
-    min-width: 0;
-    max-width: 50%;
-}
+.main-flex-row .input-section,
 .main-flex-row .compact-summary {
-    flex: 1 1 50%;
+    flex: 1 1 0%;
     min-width: 0;
-    max-width: 50%;
+    max-width: 100%;
+    width: 100%;
     margin: 0;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 2px 16px 0 rgb(16 185 129 / 0.07);
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    box-sizing: border-box;
 }
 
 @media (max-width: 900px) {
@@ -32,9 +54,22 @@
     }
 }
 .compact-summary {
-    padding: 18px 24px 18px 24px;
-    max-width: 480px;
-    margin: 24px auto;
+    padding: 0;
+    max-width: none;
+    margin: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+        /* Alinhamento dos títulos dos boxes */
+    .input-section-title, .compact-summary h4 {
+        margin: 0 0 18px 0;
+        font-size: 1.13rem;
+        color: #263238;
+        font-weight: 600;
+        align-self: flex-start;
+        padding: 0;
+    }
 }
 
 .summary-table {
@@ -42,29 +77,81 @@
     border-collapse: separate;
     border-spacing: 0;
     font-size: 1.08rem;
-}
-.summary-table th, .summary-table td {
-    padding: 7px 12px;
-    text-align: left;
-    font-weight: 500;
+    background: #fff;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px 0 rgb(16 185 129 / 0.07);
 }
 .summary-table th {
     color: #222;
-    font-size: 1rem;
-    font-weight: 600;
-    border-bottom: 2px solid #f0f0f0;
+    font-size: 1.08rem;
+    font-weight: 700;
+    background: #fff;
+    border: none;
+    padding: 16px 12px;
+    text-align: center;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #ececec;
 }
 .summary-table td {
-    color: #333;
-    font-size: 1.05rem;
-    border-bottom: 1px solid #f3f3f3;
+    color: #222;
+    font-size: 1.08rem;
+    border: none;
+    padding: 18px 12px;
+    background: #fff;
+    text-align: center;
+    vertical-align: middle;
+    transition: background 0.2s;
 }
-.summary-table tr:last-child td {
-    border-bottom: none;
+.summary-table tbody tr:nth-child(even) td {
+    background: #fff;
+}
+.summary-table tbody tr:hover td {
+    background: #fff;
+    cursor: pointer;
+}
+.summary-table tr:first-child th:first-child {
+    border-top-left-radius: 18px;
+}
+.summary-table tr:first-child th:last-child {
+    border-top-right-radius: 18px;
+}
+.summary-table tr:last-child td:first-child {
+    border-bottom-left-radius: 18px;
+}
+.summary-table tr:last-child td:last-child {
+    border-bottom-right-radius: 18px;
 }
 .summary-total-row td {
+    font-weight: 800;
+    color: #222;
+    background: #fff;
+    font-size: 1.18rem;
+    border-top: 2px solid #ececec;
+    box-shadow: none;
+    letter-spacing: 0.5px;
+}
+
+/* Destaque para totais de bolos vendidos por loja */
+#summary-loja, #summary-quiosque {
     font-weight: 700;
-    color: #1e293b;
+    color: #222;
+    font-size: 1.08rem;
+    background: #fff;
+    padding: 2px 10px;
+    border-radius: 8px;
+    margin-right: 4px;
+}
+
+#summary-total {
+    font-weight: 900;
+    color: #222;
+    font-size: 1.18rem;
+    background: #fff;
+    padding: 4px 16px;
+    border-radius: 12px;
+    box-shadow: none;
+    margin-right: 4px;
 }
 .summary-value.small {
     font-size: 0.92em;
@@ -258,7 +345,7 @@ h3 {
 textarea { 
     box-sizing: border-box;
     width: 100%;
-    height: 60px;
+    height: 180px;
     padding: 16px;
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -267,7 +354,7 @@ textarea {
     line-height: 1.5;
     resize: vertical;
     white-space: pre;
-    min-height: 40px;
+    min-height: 80px;
     overflow: auto;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
