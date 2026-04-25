@@ -1,19 +1,23 @@
 /* Layout flexível para input + resumo lado a lado */
+
+/* NOVO LAYOUT: input-section e compact-summary ocupam 50% cada, mesma altura, 100% largura */
 .main-flex-row {
     display: flex;
     flex-direction: row;
     gap: 32px;
-    align-items: flex-start;
-    justify-content: flex-start;
+    align-items: stretch;
+    justify-content: stretch;
     width: 100%;
+    min-width: 0;
 }
+
+
 
 .main-flex-row .input-section,
 .main-flex-row .compact-summary {
-    flex: 0 0 480px;
-    min-width: 480px;
-    max-width: 480px;
-    width: 480px;
+    flex: 1 1 0;
+    min-width: 0;
+    width: 100%;
     margin: 0;
     background: #fff;
     border-radius: 18px;
@@ -22,8 +26,28 @@
     display: flex;
     flex-direction: column;
     justify-content: stretch;
-    height: 320px;
+    height: 400px; /* altura fixa e igual para ambas */
     box-sizing: border-box;
+}
+
+/* Padronização dos títulos das seções principais */
+.input-section-title,
+.compact-summary h4 {
+    margin: 0 0 18px 0 !important;
+    font-size: 1.13rem !important;
+    color: #263238 !important;
+    font-weight: 600 !important;
+    align-self: flex-start !important;
+    padding: 0 !important;
+    letter-spacing: 0.01em;
+}
+
+/* Garante que input-section tenha a mesma altura da compact-summary */
+.main-flex-row .input-section {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
 }
 
 @media (max-width: 900px) {
@@ -35,6 +59,8 @@
     .main-flex-row .compact-summary {
         max-width: 100%;
         min-width: 0;
+        width: 100%;
+        height: auto;
     }
 }
 .compact-summary {
