@@ -1,3 +1,89 @@
+/* Layout flexível para input + resumo lado a lado */
+.main-flex-row {
+    display: flex;
+    flex-direction: row;
+    gap: 32px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+.main-flex-row .input-section {
+    flex: 1 1 50%;
+    min-width: 0;
+    max-width: 50%;
+}
+.main-flex-row .compact-summary {
+    flex: 1 1 50%;
+    min-width: 0;
+    max-width: 50%;
+    margin: 0;
+}
+
+@media (max-width: 900px) {
+    .main-flex-row {
+        flex-direction: column;
+        gap: 18px;
+    }
+    .main-flex-row .input-section,
+    .main-flex-row .compact-summary {
+        max-width: 100%;
+        min-width: 0;
+    }
+}
+.compact-summary {
+    padding: 18px 24px 18px 24px;
+    max-width: 480px;
+    margin: 24px auto;
+}
+
+.summary-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 1.08rem;
+}
+.summary-table th, .summary-table td {
+    padding: 7px 12px;
+    text-align: left;
+    font-weight: 500;
+}
+.summary-table th {
+    color: #222;
+    font-size: 1rem;
+    font-weight: 600;
+    border-bottom: 2px solid #f0f0f0;
+}
+.summary-table td {
+    color: #333;
+    font-size: 1.05rem;
+    border-bottom: 1px solid #f3f3f3;
+}
+.summary-table tr:last-child td {
+    border-bottom: none;
+}
+.summary-total-row td {
+    font-weight: 700;
+    color: #1e293b;
+}
+.summary-value.small {
+    font-size: 0.92em;
+    color: #888;
+    font-weight: 400;
+}
+/* Card visual padrão para seções */
+.card-section {
+    background: var(--card-bg);
+    /* border removida para igualar às demais seções principais */
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    margin-bottom: 32px;
+    padding: 0;
+}
+
+.card-content {
+    padding: 14px 18px;
+}
 :root {
     --primary: #437a4b;
     --primary-hover: #5d9b67;

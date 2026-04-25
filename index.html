@@ -44,103 +44,105 @@
         </div>
     </div>
 
-    <div class="container">
-        <div class="content-wrapper">
-            <div class="side-links">
-                <a href="https://gestor.raffinato.inf.br/ProdutosFaturados/Relatorio" target="_blank" class="side-link">Sistema Barra</a>
-                <a href="https://gestor.raffinatocore.com/report/order/products-sold?companyId=83c2c9da-2384-43ee-8555-e95644c840f5&storeId=dec4ca8f-7ada-42cd-94c0-c95d88e55c2a" target="_blank" class="side-link">Sistema Millennium</a>
-            </div>
+        <div class="container">
+            <div class="content-wrapper">
+                <div class="side-links">
+                    <a href="https://gestor.raffinato.inf.br/ProdutosFaturados/Relatorio" target="_blank" class="side-link">Sistema Barra</a>
+                    <a href="https://gestor.raffinatocore.com/report/order/products-sold?companyId=83c2c9da-2384-43ee-8555-e95644c840f5&storeId=dec4ca8f-7ada-42cd-94c0-c95d88e55c2a" target="_blank" class="side-link">Sistema Millennium</a>
+                </div>
 
-            <div class="input-section">
-                <div class="textarea-wrapper">
-                <textarea id="input-main" placeholder="Cole o relatório aqui (Barra ou Millennium)..."></textarea>
-                <button class="clear-button" id="clear-main" style="display: none;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
+                <div class="main-flex-row">
+                    <div class="input-section">
+                        <h4 class="input-section-title" style="margin:0 0 10px 0;font-size:1.13rem;color:#263238;font-weight:600;">Relatório de vendas</h4>
+                        <div class="textarea-wrapper">
+                            <textarea id="input-main" placeholder="Cole o relatório aqui (Barra ou Millennium)..."></textarea>
+                            <button class="clear-button" id="clear-main" style="display: none;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
 
-            <div class="button-container">
-                <button class="paste-button" id="pasteButton-main">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                    </svg>
-                    Colar
-                </button>
-                <button id="copyButton-loja" class="button button-disabled middle-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                    <span>Copiar Barra</span>
-                </button>
-                <button id="copyButton-quiosque" class="button button-disabled">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                    <span>Copiar Millennium</span>
-                </button>
+                        <div class="button-container">
+                            <button class="paste-button" id="pasteButton-main">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                                </svg>
+                                Colar
+                            </button>
+                            <button id="copyButton-loja" class="button button-disabled middle-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                <span>Copiar Barra</span>
+                            </button>
+                            <button id="copyButton-quiosque" class="button button-disabled">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                <span>Copiar Millennium</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="compact-summary summary-section">
+                        <h4 style="margin-bottom:18px;">Resumo do dia <span id="summary-date" style="font-size:1rem;font-weight:400;color:#888;"></span></h4>
+                        <table class="summary-table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Bolos</th>
+                                    <th>Faturamento</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Loja</td>
+                                    <td><span id="summary-loja">0</span> <span class="summary-value small" id="summary-loja-ifood">(0 iFood)</span></td>
+                                    <td id="summary-loja-valor">R$ 0,00</td>
+                                </tr>
+                                <tr>
+                                    <td>Quiosque</td>
+                                    <td><span id="summary-quiosque">0</span> <span class="summary-value small" id="summary-quiosque-ifood">(0 iFood)</span></td>
+                                    <td id="summary-quiosque-valor">R$ 0,00</td>
+                                </tr>
+                                <tr class="summary-total-row">
+                                    <td>Total</td>
+                                    <td id="summary-total">0</td>
+                                    <td id="summary-valor-total">R$ 0,00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Preview areas hidden but kept for internal processing -->
+                <div style="display: none;">
+                    <div id="preview-loja"></div>
+                    <div id="preview-quiosque"></div>
+                </div>
             </div>
         </div>
-        </div>
-        
-        <!-- Preview areas hidden but kept for internal processing -->
-        <div style="display: none;">
-            <div id="preview-loja"></div>
-            <div id="preview-quiosque"></div>
-        </div>
-    </div>
 
     <!-- Adicionar seção de resumo -->
-    <div class="summary-section">
-        <div class="summary-header">
-            <h4>Resumo do dia</h4>
-            <span id="summary-date"></span>
-        </div>
-        <div class="summary-grid">
-            <div class="summary-item empty">
-                <span class="summary-label">Barra Olímpica</span>
-                <span class="summary-value" id="summary-loja">0 bolos</span>
-                <span class="summary-value small" id="summary-loja-ifood">(0 iFood)</span>
-                <span class="summary-value" id="summary-loja-valor">R$ 0,00</span>
-            </div>
-            <div class="summary-item empty">
-                <span class="summary-label">Shopping Millennium</span>
-                <span class="summary-value" id="summary-quiosque">0 bolos</span>
-                <span class="summary-value small" id="summary-quiosque-ifood">(0 iFood)</span>
-                <span class="summary-value" id="summary-quiosque-valor">R$ 0,00</span>
-            </div>
-            <div class="summary-item summary-total">
-                <span class="summary-label">Total Geral</span>
-                <span class="summary-value" id="summary-total">0 bolos</span>
-                <span class="summary-value" id="summary-valor-total">R$ 0,00</span>
-            </div>
-        </div>
-    </div>
+                    <div id="tabela-precos-insumos" class="card-section" style="margin:32px auto 24px auto;width:100%;max-width:1200px;padding:0;display:block;">
+                    <div class="card-content" style="display:flex;align-items:center;gap:18px;justify-content:center;flex-wrap:nowrap;min-width:600px;">
+                        <span style="font-weight:600;color:#222;">Açúcar</span>
+                        <span id="preco-acucar"></span>
+                        <span style="color:#bbb;">|</span>
+                        <span style="font-weight:600;color:#222;">Farinha</span>
+                        <span id="preco-farinha"></span>
+                        <span style="color:#bbb;">|</span>
+                        <span style="font-weight:600;color:#222;">Óleo de soja</span>
+                        <span id="preco-oleo"></span>
+                        <span style="color:#bbb;">|</span>
+                        <a href="https://felipedavolta.github.io/bolodebolo_estoque/" target="_blank" class="system-link-inline">Ver estoque/preços</a>
+                    </div>
+                </div>
 
-        <div id="error">Erro ao processar relatório. Verifique o formato.</div>
-        <div id="unknown-bolos" class="unknown-bolos"></div>
-
-        <!-- Tabela de preços dos insumos -->
-        <div id="tabela-precos-insumos" style="max-width:1000px;margin:32px auto 0 auto;padding:0 8px;">
-            <div style="background:#fff;border-radius:18px;box-shadow:0 2px 16px #0001;padding:14px 18px;display:flex;align-items:center;gap:18px;justify-content:center;flex-wrap:nowrap;min-width:600px;">
-                <span style="font-weight:600;color:#222;">Açúcar</span>
-                <span id="preco-acucar"></span>
-                <span style="color:#bbb;">|</span>
-                <span style="font-weight:600;color:#222;">Farinha</span>
-                <span id="preco-farinha"></span>
-                <span style="color:#bbb;">|</span>
-                <span style="font-weight:600;color:#222;">Óleo de soja</span>
-                <span id="preco-oleo"></span>
-                <span style="color:#bbb;">|</span>
-                <a href="https://felipedavolta.github.io/bolodebolo_estoque/" target="_blank" style="display:inline-block;background:#fff;border:1px solid #ddd;color:#222;padding:4px 14px;border-radius:16px;font-size:0.97rem;font-weight:500;text-decoration:none;box-shadow:0 1px 4px #0001;transition:box-shadow .2s;">Ver estoque/preços</a>
-            </div>
-        </div>
-    
     <div class="dashboard">
         <div class="dashboard-date" id="report-date"></div>
         <div class="revenue-section collapsed">
@@ -186,7 +188,11 @@
                         const preco = i.price !== null ? `R$ ${parseFloat(i.price).toFixed(2)}` : '--';
                         const el = document.getElementById(mapId[i.name]);
                         if (el) {
-                            el.innerHTML = `<span style='color:#b71c1c;background:#fff0f0;padding:2px 10px 2px 10px;border-radius:14px;font-weight:700;text-decoration:none;display:inline-block;min-width:60px;border:2px solid #f3cfcf;font-size:0.97rem;'>${preco}</span>`;
+                            if (i.link) {
+                                el.innerHTML = `<a href='${i.link}' target='_blank' style='color:#b71c1c;background:#fff0f0;padding:2px 10px 2px 10px;border-radius:14px;font-weight:700;text-decoration:none;display:inline-block;min-width:60px;border:2px solid #f3cfcf;font-size:0.97rem;transition:box-shadow .2s,background .2s;' onmouseover="this.style.boxShadow='0 2px 8px #f3cfcf'" onmouseout="this.style.boxShadow='none'">${preco}</a>`;
+                            } else {
+                                el.innerHTML = `<span style='color:#b71c1c;background:#fff0f0;padding:2px 10px 2px 10px;border-radius:14px;font-weight:700;text-decoration:none;display:inline-block;min-width:60px;border:2px solid #f3cfcf;font-size:0.97rem;'>${preco}</span>`;
+                            }
                         }
                     }
                 });
