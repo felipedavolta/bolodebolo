@@ -119,13 +119,17 @@
                     </div>
                 </div>
 
-                <!-- Preview areas hidden but kept for internal processing -->
-                <div style="display: none;">
-                    <div id="preview-loja"></div>
-                    <div id="preview-quiosque"></div>
+                <!-- Áreas de preview para processamento interno e acessíveis para copiar -->
+                <div style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">
+                    <div id="preview-loja" aria-hidden="true"></div>
+                    <div id="preview-quiosque" aria-hidden="true"></div>
                 </div>
             </div>
         </div>
+
+        <!-- Elementos de erro e aviso de bolos desconhecidos -->
+        <div id="error" style="display:none;color:#b71c1c;font-weight:600;margin:16px 0 0 0;"></div>
+        <div id="unknown-bolos" style="display:none;color:#ad8b00;font-weight:600;margin:8px 0 0 0;"></div>
 
     <!-- Adicionar seção de resumo -->
                     <div id="tabela-precos-insumos" class="card-section" style="margin:32px auto 24px auto;width:100%;max-width:1200px;padding:0;display:block;">
