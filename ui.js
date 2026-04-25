@@ -272,19 +272,24 @@ function updateDetectionBadge(status, message, duration = 0) {
 
 function detectStore(text) {
     if (!text || !text.trim()) return null;
-    
-    // Check for Millennium specific keywords
-    if (text.includes('Total Geral') || text.includes('Totalizadores Gerais') || 
-        text.includes('Impresso em') || text.includes('Página 1 de 2')) {
+
+    // Millennium: reforçar detecção
+    if (
+        text.match(/PRODUTOS VENDIDOS/i) &&
+        (text.match(/Totalizadores Gerais/i) || text.match(/Total Geral/i) || text.match(/Impresso em/i) || text.match(/Página \d+ de \d+/i))
+    ) {
         return 'quiosque';
     }
-    
-    // Check for Barra Olímpica specific keywords
-    // Raffinato reports usually have "Vendas:" in the footer, or "Valor Unitário:" in items
-    if (text.includes('Vendas:') || text.includes('Valor Unitário:') || text.includes('Produtos Vendidos')) {
+
+    // Barra Olímpica
+    if (
+        text.match(/Vendas:/i) ||
+        text.match(/Valor Unitário:/i) ||
+        text.match(/Produtos Vendidos/i)
+    ) {
         return 'loja';
     }
-    
+
     return 'unknown';
 }
 
@@ -313,17 +318,27 @@ async function processInputMain(autoCopy = false) {
     }
 
     const storeType = detectStore(text);
-    
+
+    console.log('[DEBUG] Tipo detectado:', storeType);
     if (storeType === 'quiosque') {
         updateDetectionBadge('success', 'Detectado: Shopping Millennium', 3000);
-        processQuiosqueLogic(text, autoCopy);
+        try {
+            processQuiosqueLogic(text, autoCopy);
+        } catch (e) {
+            console.error('[DEBUG] Erro Millennium:', e);
+        }
     } else if (storeType === 'loja') {
         updateDetectionBadge('success', 'Detectado: Barra Olímpica', 3000);
-        processLojaLogic(text, autoCopy);
+        try {
+            processLojaLogic(text, autoCopy);
+        } catch (e) {
+            console.error('[DEBUG] Erro Barra Olímpica:', e);
+        }
     } else {
         updateDetectionBadge('error', 'Formato desconhecido');
         errorDiv.textContent = 'Não foi possível identificar o relatório. Verifique se copiou todo o conteúdo.';
         errorDiv.style.display = 'block';
+        console.warn('[DEBUG] Texto não identificado:', text);
     }
 }
 
