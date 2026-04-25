@@ -53,7 +53,7 @@
 
                 <div class="main-flex-row">
                     <div class="input-section">
-                        <h4 class="input-section-title" style="margin:0 0 10px 0;font-size:1.13rem;color:#263238;font-weight:600;">Entrada de dados</h4>
+                        <h4 class="input-section-title" style="margin:0 0 10px 0;font-size:1.13rem;color:#263238;font-weight:600;">Relatório de vendas</h4>
                         <div class="textarea-wrapper">
                             <textarea id="input-main" placeholder="Cole o relatório aqui (Barra ou Millennium)..."></textarea>
                             <button class="clear-button" id="clear-main" style="display: none;">
@@ -90,29 +90,29 @@
                     </div>
                     <div class="compact-summary summary-section">
                         <h4 style="margin-bottom:18px;">Resumo do dia <span id="summary-date" style="font-size:1rem;font-weight:400;color:#888;"></span></h4>
-                        <table class="summary-table modern-summary-table">
+                        <table class="summary-table">
                             <thead>
                                 <tr>
-                                    <th style="text-align:center;">Local</th>
-                                    <th style="text-align:center;">Bolos vendidos</th>
-                                    <th style="text-align:center;">Faturamento</th>
+                                    <th></th>
+                                    <th>Bolos</th>
+                                    <th>Faturamento</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td style="text-align:center;font-weight:600;">Loja</td>
-                                    <td style="text-align:center;"><span id="summary-loja">0</span> <span class="summary-value small" id="summary-loja-ifood">(0 iFood)</span></td>
-                                    <td style="text-align:center;" id="summary-loja-valor">R$ 0,00</td>
+                                    <td>Loja</td>
+                                    <td><span id="summary-loja">0</span> <span class="summary-value small" id="summary-loja-ifood">(0 iFood)</span></td>
+                                    <td id="summary-loja-valor">R$ 0,00</td>
                                 </tr>
                                 <tr>
-                                    <td style="text-align:center;font-weight:600;">Quiosque</td>
-                                    <td style="text-align:center;"><span id="summary-quiosque">0</span> <span class="summary-value small" id="summary-quiosque-ifood">(0 iFood)</span></td>
-                                    <td style="text-align:center;" id="summary-quiosque-valor">R$ 0,00</td>
+                                    <td>Quiosque</td>
+                                    <td><span id="summary-quiosque">0</span> <span class="summary-value small" id="summary-quiosque-ifood">(0 iFood)</span></td>
+                                    <td id="summary-quiosque-valor">R$ 0,00</td>
                                 </tr>
                                 <tr class="summary-total-row">
-                                    <td style="text-align:center;font-weight:700;">Total</td>
-                                    <td style="text-align:center;font-weight:900;" id="summary-total">0</td>
-                                    <td style="text-align:center;font-weight:900;" id="summary-valor-total">R$ 0,00</td>
+                                    <td>Total</td>
+                                    <td id="summary-total">0</td>
+                                    <td id="summary-valor-total">R$ 0,00</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -147,7 +147,34 @@
                     </div>
                 </div>
 
-    <!-- seção de faturamento removida -->
+    <div class="dashboard">
+        <div class="dashboard-date" id="report-date"></div>
+        <div class="revenue-section collapsed">
+            <div class="revenue-header">
+                <h4>Faturamento</h4>
+                <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </div>
+            <div class="revenue-content">
+                <div class="revenue-table-wrapper">
+                    <table class="revenue-table">
+                        <thead>
+                            <tr>
+                                <th>Categoria</th>
+                                <th>Barra</th>
+                                <th>Millennium</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="revenue-table-body">
+                            <!-- Rows populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="last-modified" class="last-modified" aria-label="Data da última atualização"></div>
 
