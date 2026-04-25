@@ -8,6 +8,13 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+    <div id="insumos-precos-alert" style="display:none; background:#fffbe6; border:1px solid #ffe58f; color:#ad8b00; padding:12px 18px; margin:18px auto 0 auto; max-width:600px; border-radius:8px; font-size:1rem; box-shadow:0 2px 8px #0001;">
+        <strong>Preços de insumos:</strong>
+        <span id="insumos-precos-list"></span>
+        <a href="https://felipedavolta.github.io/bolodebolo_estoque/" target="_blank" style="margin-left:16px; color:#ad8b00; text-decoration:underline; font-weight:500;">Ver todos</a>
+    </div>
+
     <div id="detection-badge" class="detection-badge hidden">
         <span class="badge-dot"></span>
         <span id="detection-text">Aguardando relatório...</span>
@@ -154,6 +161,27 @@
     <div id="last-modified" class="last-modified" aria-label="Data da última atualização"></div>
 
     <script type="module" src="main.js"></script>
+            <script>
+            // Consulta preços dos insumos
+            async function fetchInsumosPrecos() {
+                try {
+                    const res = await fetch('https://felipedavolta.github.io/bolodebolo_estoque/dados_estoque.json');
+                    const data = await res.json();
+                    const wanted = ['Açúcar', 'Farinha', 'Óleo'];
+                    const insumos = (data.ingredients || []).filter(i => wanted.includes(i.name));
+                    if (insumos.length === 0) return;
+                    const list = insumos.map(i => {
+                        const preco = i.price !== null ? `R$ ${parseFloat(i.price).toFixed(2)}` : '--';
+                        return `<a href='https://felipedavolta.github.io/bolodebolo_estoque/' target='_blank' style='color:#ad8b00;text-decoration:underline;'>${i.name}: ${preco}</a>`;
+                    }).join(' &nbsp;|&nbsp; ');
+                    document.getElementById('insumos-precos-list').innerHTML = list;
+                    document.getElementById('insumos-precos-alert').style.display = 'block';
+                } catch(e) {
+                    // Silencia erro
+                }
+            }
+            fetchInsumosPrecos();
+            </script>
     <script>
         (function() {
             var el = document.getElementById('last-modified');
