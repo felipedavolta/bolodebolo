@@ -1,36 +1,19 @@
-/* Área de título padronizada para seções principais */
-.section-title-area {
-    width: 100%;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: flex-start;
-}
-
-.section-title {
-    margin: 0;
-    font-size: 1.35rem;
-    color: #263238;
-    font-weight: 700;
-    font-family: inherit;
-    letter-spacing: -0.5px;
-}
 /* Layout flexível para input + resumo lado a lado */
 .main-flex-row {
     display: flex;
     flex-direction: row;
     gap: 32px;
-    align-items: stretch;
-    justify-content: center;
+    align-items: flex-start;
+    justify-content: flex-start;
     width: 100%;
-    min-width: 0;
 }
 
 .main-flex-row .input-section,
 .main-flex-row .compact-summary {
-    flex: 1 1 0%;
-    min-width: 0;
-    max-width: 100%;
-    width: 100%;
+    flex: 0 0 480px;
+    min-width: 480px;
+    max-width: 480px;
+    width: 480px;
     margin: 0;
     background: #fff;
     border-radius: 18px;
@@ -39,6 +22,7 @@
     display: flex;
     flex-direction: column;
     justify-content: stretch;
+    height: 320px;
     box-sizing: border-box;
 }
 
@@ -345,7 +329,7 @@ h3 {
 textarea { 
     box-sizing: border-box;
     width: 100%;
-    height: 180px;
+    height: 60px;
     padding: 16px;
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -354,7 +338,7 @@ textarea {
     line-height: 1.5;
     resize: vertical;
     white-space: pre;
-    min-height: 80px;
+    min-height: 40px;
     overflow: auto;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
