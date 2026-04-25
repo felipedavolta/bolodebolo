@@ -9,11 +9,7 @@
 </head>
 <body>
 
-    <div id="insumos-precos-alert" style="display:none; background:#fffbe6; border:1px solid #ffe58f; color:#ad8b00; padding:12px 18px; margin:18px auto 0 auto; max-width:600px; border-radius:8px; font-size:1rem; box-shadow:0 2px 8px #0001;">
-        <strong>Preços de insumos:</strong>
-        <span id="insumos-precos-list"></span>
-        <a href="https://felipedavolta.github.io/bolodebolo_estoque/" target="_blank" style="margin-left:16px; color:#ad8b00; text-decoration:underline; font-weight:500;">Ver todos</a>
-    </div>
+
 
     <div id="detection-badge" class="detection-badge hidden">
         <span class="badge-dot"></span>
@@ -126,8 +122,24 @@
         </div>
     </div>
 
-    <div id="error">Erro ao processar relatório. Verifique o formato.</div>
-    <div id="unknown-bolos" class="unknown-bolos"></div>
+        <div id="error">Erro ao processar relatório. Verifique o formato.</div>
+        <div id="unknown-bolos" class="unknown-bolos"></div>
+
+        <!-- Tabela de preços dos insumos -->
+        <div id="tabela-precos-insumos" style="max-width:1000px;margin:32px auto 0 auto;padding:0 8px;">
+            <div style="background:#fff;border-radius:18px;box-shadow:0 2px 16px #0001;padding:14px 18px;display:flex;align-items:center;gap:18px;justify-content:center;flex-wrap:nowrap;min-width:600px;">
+                <span style="font-weight:600;color:#222;">Açúcar</span>
+                <span id="preco-acucar"></span>
+                <span style="color:#bbb;">|</span>
+                <span style="font-weight:600;color:#222;">Farinha</span>
+                <span id="preco-farinha"></span>
+                <span style="color:#bbb;">|</span>
+                <span style="font-weight:600;color:#222;">Óleo de soja</span>
+                <span id="preco-oleo"></span>
+                <span style="color:#bbb;">|</span>
+                <a href="https://felipedavolta.github.io/bolodebolo_estoque/" target="_blank" style="display:inline-block;background:#fff;border:1px solid #ddd;color:#222;padding:4px 14px;border-radius:16px;font-size:0.97rem;font-weight:500;text-decoration:none;box-shadow:0 1px 4px #0001;transition:box-shadow .2s;">Ver estoque/preços</a>
+            </div>
+        </div>
     
     <div class="dashboard">
         <div class="dashboard-date" id="report-date"></div>
@@ -160,7 +172,30 @@
 
     <div id="last-modified" class="last-modified" aria-label="Data da última atualização"></div>
 
-    <script type="module" src="main.js"></script>
+        <script type="module" src="main.js"></script>
+        <script>
+        // Tabela de preços dos insumos em linha única
+        async function preencherTabelaPrecos() {
+            try {
+                const res = await fetch('https://felipedavolta.github.io/bolodebolo_estoque/dados_estoque.json');
+                const data = await res.json();
+                const wanted = ['Açúcar', 'Farinha', 'Óleo'];
+                const mapId = { 'Açúcar': 'preco-acucar', 'Farinha': 'preco-farinha', 'Óleo': 'preco-oleo' };
+                (data.ingredients || []).forEach(i => {
+                    if (wanted.includes(i.name)) {
+                        const preco = i.price !== null ? `R$ ${parseFloat(i.price).toFixed(2)}` : '--';
+                        const el = document.getElementById(mapId[i.name]);
+                        if (el) {
+                            el.innerHTML = `<span style='color:#b71c1c;background:#fff0f0;padding:2px 10px 2px 10px;border-radius:14px;font-weight:700;text-decoration:none;display:inline-block;min-width:60px;border:2px solid #f3cfcf;font-size:0.97rem;'>${preco}</span>`;
+                        }
+                    }
+                });
+            } catch(e) {
+                // Silencia erro
+            }
+        }
+        preencherTabelaPrecos();
+        </script>
             <script>
             // Consulta preços dos insumos
             async function fetchInsumosPrecos() {
@@ -185,7 +220,7 @@
     <script>
         (function() {
             var el = document.getElementById('last-modified');
-            if (el) el.textContent = 'Atualizado em 02/12/2025';
+            if (el) el.textContent = 'Atualizado em 24/04/2026';
         })();
     </script>
 </body>
