@@ -1,62 +1,50 @@
 # Sales Report Parser – Relatório de Vendas para Planilha
 
 ## O que é este projeto?
-Uma ferramenta web que interpreta relatórios de vendas da **Barra Olímpica** (sistema Raffinato) e **Shopping Millennium** (sistema RaffinatoCore), extraindo automaticamente quantidades e valores de faturamento por categoria de produto. O resultado é uma lista pronta para colar em planilhas, facilitando o controle financeiro.
+Ferramenta web que interpreta relatórios de vendas da **Barra Olímpica** (Raffinato) e **Shopping Millennium** (RaffinatoCore), extrai quantidades e faturamento por categoria e gera uma lista pronta para colar em planilhas.
 
-## Principais Funcionalidades
-- **Cole em qualquer campo**: o sistema detecta automaticamente qual relatório foi colado e move para o campo correto
-- **Processamento inteligente**: extrai quantidades e faturamento por categoria
-- **Validação automática**: detecta e rejeita resultados já processados ou relatórios inválidos
-- **Feedback visual**: animações e notificações indicam o status do processamento
-- **Botão "Copiar Resultado"** com estados visuais (desabilitado, pronto, copiado)
-- **Resumo visual**: totais de bolos, iFood e faturamento por categoria
-- **Interface responsiva**: funciona em diferentes tamanhos de tela
-- **Modo escuro**: adapta-se automaticamente às preferências do sistema
-- **Tudo local**: nenhum dado é enviado para servidores
+## Funcionalidades
+- **Detecção automática**: identifica o sistema de origem do relatório colado
+- **Processamento inteligente**: extrai quantidades por sabor e faturamento por categoria
+- **Alerta de sabores não reconhecidos**: exibe nome e quantidade de itens dos grupos BOLOS/BOLOS IFOOD que não constam na lista cadastrada; persiste por loja — só some quando as duas lojas estiverem sem itens faltantes
+- **Resumo de bolos**: exibe total de bolos da Barra, do Millennium e o combinado
+- **Validação automática**: rejeita resultados já processados
+- **Botões de cópia** com estados visuais (desabilitado → pronto → copiado)
+- **Modo escuro**: segue a preferência do sistema
+- **Tudo local**: nenhum dado sai do navegador
 
 ## Como usar
-1. Abra o arquivo `index.html` em seu navegador
-2. Cole o relatório de vendas em **qualquer um dos campos** (o sistema move automaticamente para o correto)
-3. O sistema processa automaticamente e atualiza o dashboard
-4. O botão "Copiar Resultado" fica **verde** indicando que está pronto
-5. Clique no botão para copiar e cole na sua planilha
-6. O botão muda para **"Copiado!"** confirmando a ação
+1. Abra `index.html` no navegador (ou acesse pelo servidor local)
+2. Cole o relatório no campo de texto (Barra ou Millennium — o sistema detecta automaticamente)
+3. Aguarde o processamento automático
+4. O botão de cópia fica verde quando o resultado está pronto
+5. Clique para copiar e cole na planilha
 
 ## Estrutura do Projeto
 ```
-Web/
-├── index.html      # Interface principal
-├── script.js       # Lógica de parsing e processamento
-├── styles.css      # Estilos visuais
-├── DOCUMENTACAO_PARSER.md # Documentação técnica detalhada
-├── README.md       # Este arquivo
-└── Logo Bolo de Bolo 2025 Cor Small.png
+bolodebolo/
+├── index.html          # Interface principal
+├── main.js             # Ponto de entrada (inicializa UI)
+├── ui.js               # Lógica de interface e orquestração
+├── parsers.js          # Parsers do Millennium e da Barra
+├── constants.js        # Lista de bolos e produtos especiais
+├── styles.css          # Estilos e responsividade
+└── docs/
+    ├── README.md               # Este arquivo
+    └── DOCUMENTACAO_PARSER.md  # Documentação técnica
 ```
 
-## Principais Seções da Interface
-- **Header**: Logo, título, botões de acesso aos sistemas (Barra Olímpica e Shopping Millennium)
-- **Barra Olímpica**: campo para processar relatórios do sistema Raffinato
-- **Shopping Millennium**: campo para processar relatórios do sistema RaffinatoCore
-- **Resumo do dia**: totais consolidados de bolos, iFood e faturamento de ambas as lojas
-- **Dashboard**: métricas detalhadas por categoria e canal (oculto até processar relatórios)
-- **Faturamento**: valores por categoria (Bebidas, Alimentos, Bolos, Artigos Festa, Fatias)
-
-## Estados do Botão "Copiar Resultado"
-1. **Desabilitado** (cinza): antes de colar relatório ou se houver erro
-2. **Pronto** (verde): após processar relatório válido, pronto para copiar
-3. **Copiado** (borda verde): após clicar no botão, confirmando a cópia
-
-## Validações Automáticas
-- ✅ Detecta qual sistema gerou o relatório e move para o campo correto
-- ✅ Rejeita resultados já processados (apenas números)
-- ✅ Vibra o campo e exibe erro quando o texto não é reconhecido
-- ✅ Mostra notificação verde quando move relatório automaticamente
+## Estados do botão "Copiar"
+| Estado | Visual | Quando |
+|--------|--------|--------|
+| Desabilitado | Cinza | Sem dados ou erro |
+| Pronto | Verde sólido | Após processar relatório válido |
+| Copiado | Borda verde | Após clicar (confirma a cópia) |
 
 ## Observações
-- O parser foi desenvolvido para lidar com os formatos Raffinato e RaffinatoCore
-- O processamento é feito inteiramente no navegador, garantindo privacidade
-- Interface otimizada para Safari no macOS
-- Para detalhes técnicos, consulte o arquivo `DOCUMENTACAO_PARSER.md`
+- Desenvolvido para os formatos Raffinato e RaffinatoCore
+- Otimizado para Safari/macOS com fallback de clipboard
+- Para detalhes técnicos, consulte `DOCUMENTACAO_PARSER.md`
 
 ## Licença
-Uso interno. Consulte o responsável pelo projeto para informações sobre distribuição ou modificações.
+Uso interno.
