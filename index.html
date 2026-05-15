@@ -9,8 +9,6 @@
 </head>
 <body>
 
-
-
     <div id="detection-badge" class="detection-badge hidden">
         <span class="badge-dot"></span>
         <span id="detection-text">Aguardando relatório...</span>
@@ -24,213 +22,85 @@
                 <span class="title-highlight">Relatórios</span>
             </h1>
         </div>
-        <div class="top-bar-right">
-            <button id="theme-toggle" class="theme-toggle" aria-label="Alternar tema">
-                <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="5"></circle>
-                    <line x1="12" y1="1" x2="12" y2="3"></line>
-                    <line x1="12" y1="21" x2="12" y2="23"></line>
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                    <line x1="1" y1="12" x2="3" y2="12"></line>
-                    <line x1="21" y1="12" x2="23" y2="12"></line>
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                </svg>
-                <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                </svg>
-            </button>
-        </div>
     </div>
 
-        <div class="container">
-            <div class="content-wrapper">
-                <div class="side-links">
-                    <a href="https://gestor.raffinato.inf.br/ProdutosFaturados/Relatorio" target="_blank" class="side-link">Sistema Barra</a>
-                    <a href="https://gestor.raffinatocore.com/report/order/products-sold?companyId=83c2c9da-2384-43ee-8555-e95644c840f5&storeId=dec4ca8f-7ada-42cd-94c0-c95d88e55c2a" target="_blank" class="side-link">Sistema Millennium</a>
+    <div class="container">
+        <div class="content-wrapper">
+            <div class="side-links">
+                <a href="https://gestor.raffinato.inf.br/ProdutosFaturados/Relatorio" target="_blank" class="side-link">Sistema Barra</a>
+                <a href="https://gestor.raffinatocore.com/report/order/products-sold?companyId=83c2c9da-2384-43ee-8555-e95644c840f5&storeId=dec4ca8f-7ada-42cd-94c0-c95d88e55c2a" target="_blank" class="side-link">Sistema Millennium</a>
+            </div>
+
+            <div class="input-section">
+                <h4 class="input-section-title" style="margin:0 0 10px 0;font-size:1.13rem;color:#263238;font-weight:600;">Relatório de vendas</h4>
+                <div class="textarea-wrapper">
+                    <textarea id="input-main" placeholder="Cole o relatório aqui (Barra ou Millennium)..."></textarea>
+                    <button class="clear-button" id="clear-main" style="display: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
 
-                <div class="main-flex-row">
-                    <div class="input-section">
-                        <h4 class="input-section-title" style="margin:0 0 10px 0;font-size:1.13rem;color:#263238;font-weight:600;">Relatório de vendas</h4>
-                        <div class="textarea-wrapper">
-                            <textarea id="input-main" placeholder="Cole o relatório aqui (Barra ou Millennium)..."></textarea>
-                            <button class="clear-button" id="clear-main" style="display: none;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
-                            </button>
-                        </div>
-
-                        <div class="button-container">
-                            <button class="paste-button" id="pasteButton-main">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                                </svg>
-                                Colar
-                            </button>
-                            <button id="copyButton-loja" class="button button-disabled middle-button">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                </svg>
-                                <span>Copiar Barra</span>
-                            </button>
-                            <button id="copyButton-quiosque" class="button button-disabled">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                </svg>
-                                <span>Copiar Millennium</span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="compact-summary summary-section">
-                        <h4 style="margin-bottom:18px;">Resumo do dia <span id="summary-date" style="font-size:1rem;font-weight:400;color:#888;"></span></h4>
-                        <table class="summary-table">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>Bolos</th>
-                                    <th>Faturamento</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Loja</td>
-                                    <td><span id="summary-loja">0</span> <span class="summary-value small" id="summary-loja-ifood">(0 iFood)</span></td>
-                                    <td id="summary-loja-valor">R$ 0,00</td>
-                                </tr>
-                                <tr>
-                                    <td>Quiosque</td>
-                                    <td><span id="summary-quiosque">0</span> <span class="summary-value small" id="summary-quiosque-ifood">(0 iFood)</span></td>
-                                    <td id="summary-quiosque-valor">R$ 0,00</td>
-                                </tr>
-                                <tr class="summary-total-row">
-                                    <td>Total</td>
-                                    <td id="summary-total">0</td>
-                                    <td id="summary-valor-total">R$ 0,00</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="button-container">
+                    <button class="paste-button" id="pasteButton-main">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        </svg>
+                        Colar
+                    </button>
+                    <button id="copyButton-loja" class="button button-disabled middle-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        <span>Copiar Barra</span>
+                    </button>
+                    <button id="copyButton-quiosque" class="button button-disabled">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        <span>Copiar Millennium</span>
+                    </button>
                 </div>
 
-                <!-- Áreas de preview para processamento interno e acessíveis para copiar -->
-                <div style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">
-                    <div id="preview-loja" aria-hidden="true"></div>
-                    <div id="preview-quiosque" aria-hidden="true"></div>
+                <div id="error" class="alert alert-error"></div>
+                <div id="unknown-bolos" class="alert alert-warning"></div>
+            </div>
+
+            <div class="bolos-summary" id="bolos-summary">
+                <div class="bolos-cell">
+                    <div class="bolos-label">Barra</div>
+                    <div class="bolos-value" id="bolos-barra">—</div>
+                </div>
+                <div class="bolos-cell">
+                    <div class="bolos-label">Millennium</div>
+                    <div class="bolos-value" id="bolos-millennium">—</div>
+                </div>
+                <div class="bolos-cell bolos-cell-total">
+                    <div class="bolos-label">Total</div>
+                    <div class="bolos-value" id="bolos-total">—</div>
                 </div>
             </div>
-        </div>
 
-        <!-- Elementos de erro e aviso de bolos desconhecidos -->
-        <div id="error" style="display:none;color:#b71c1c;font-weight:600;margin:16px 0 0 0;"></div>
-        <div id="unknown-bolos" style="display:none;color:#ad8b00;font-weight:600;margin:8px 0 0 0;"></div>
-
-    <!-- Adicionar seção de resumo -->
-                    <div id="tabela-precos-insumos" class="card-section" style="margin:32px auto 24px auto;width:100%;max-width:1200px;padding:0;display:block;">
-                    <div class="card-content" style="display:flex;align-items:center;gap:18px;justify-content:center;flex-wrap:nowrap;min-width:600px;">
-                        <span style="font-weight:600;color:#222;">Açúcar</span>
-                        <span id="preco-acucar"></span>
-                        <span style="color:#bbb;">|</span>
-                        <span style="font-weight:600;color:#222;">Farinha</span>
-                        <span id="preco-farinha"></span>
-                        <span style="color:#bbb;">|</span>
-                        <span style="font-weight:600;color:#222;">Óleo de soja</span>
-                        <span id="preco-oleo"></span>
-                        <span style="color:#bbb;">|</span>
-                        <a href="https://felipedavolta.github.io/bolodebolo_estoque/" target="_blank" class="system-link-inline">Ver estoque/preços</a>
-                    </div>
-                </div>
-
-    <div class="dashboard">
-        <div class="dashboard-date" id="report-date"></div>
-        <div class="revenue-section collapsed">
-            <div class="revenue-header">
-                <h4>Faturamento</h4>
-                <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-            </div>
-            <div class="revenue-content">
-                <div class="revenue-table-wrapper">
-                    <table class="revenue-table">
-                        <thead>
-                            <tr>
-                                <th>Categoria</th>
-                                <th>Barra</th>
-                                <th>Millennium</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody id="revenue-table-body">
-                            <!-- Rows populated by JS -->
-                        </tbody>
-                    </table>
-                </div>
+            <!-- Áreas de preview para processamento interno -->
+            <div style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">
+                <div id="preview-loja" aria-hidden="true"></div>
+                <div id="preview-quiosque" aria-hidden="true"></div>
             </div>
         </div>
     </div>
 
     <div id="last-modified" class="last-modified" aria-label="Data da última atualização"></div>
 
-        <script type="module" src="main.js"></script>
-        <script>
-        // Tabela de preços dos insumos em linha única
-        async function preencherTabelaPrecos() {
-            try {
-                const res = await fetch('https://felipedavolta.github.io/bolodebolo_estoque/dados_estoque.json');
-                const data = await res.json();
-                const wanted = ['Açúcar', 'Farinha', 'Óleo'];
-                const mapId = { 'Açúcar': 'preco-acucar', 'Farinha': 'preco-farinha', 'Óleo': 'preco-oleo' };
-                (data.ingredients || []).forEach(i => {
-                    if (wanted.includes(i.name)) {
-                        const preco = i.price !== null ? `R$ ${parseFloat(i.price).toFixed(2)}` : '--';
-                        const el = document.getElementById(mapId[i.name]);
-                        if (el) {
-                            if (i.link) {
-                                el.innerHTML = `<a href='${i.link}' target='_blank' style='color:#b71c1c;background:#fff0f0;padding:2px 10px 2px 10px;border-radius:14px;font-weight:700;text-decoration:none;display:inline-block;min-width:60px;border:2px solid #f3cfcf;font-size:0.97rem;transition:box-shadow .2s,background .2s;' onmouseover="this.style.boxShadow='0 2px 8px #f3cfcf'" onmouseout="this.style.boxShadow='none'">${preco}</a>`;
-                            } else {
-                                el.innerHTML = `<span style='color:#b71c1c;background:#fff0f0;padding:2px 10px 2px 10px;border-radius:14px;font-weight:700;text-decoration:none;display:inline-block;min-width:60px;border:2px solid #f3cfcf;font-size:0.97rem;'>${preco}</span>`;
-                            }
-                        }
-                    }
-                });
-            } catch(e) {
-                // Silencia erro
-            }
-        }
-        preencherTabelaPrecos();
-        </script>
-            <script>
-            // Consulta preços dos insumos
-            async function fetchInsumosPrecos() {
-                try {
-                    const res = await fetch('https://felipedavolta.github.io/bolodebolo_estoque/dados_estoque.json');
-                    const data = await res.json();
-                    const wanted = ['Açúcar', 'Farinha', 'Óleo'];
-                    const insumos = (data.ingredients || []).filter(i => wanted.includes(i.name));
-                    if (insumos.length === 0) return;
-                    const list = insumos.map(i => {
-                        const preco = i.price !== null ? `R$ ${parseFloat(i.price).toFixed(2)}` : '--';
-                        return `<a href='https://felipedavolta.github.io/bolodebolo_estoque/' target='_blank' style='color:#ad8b00;text-decoration:underline;'>${i.name}: ${preco}</a>`;
-                    }).join(' &nbsp;|&nbsp; ');
-                    document.getElementById('insumos-precos-list').innerHTML = list;
-                    document.getElementById('insumos-precos-alert').style.display = 'block';
-                } catch(e) {
-                    // Silencia erro
-                }
-            }
-            fetchInsumosPrecos();
-            </script>
+    <script type="module" src="main.js"></script>
     <script>
         (function() {
             var el = document.getElementById('last-modified');
-            if (el) el.textContent = 'Atualizado em 24/04/2026';
+            if (el) el.textContent = 'Atualizado em 14/05/2026';
         })();
     </script>
 </body>

@@ -628,12 +628,27 @@ export function processSalesReport(text) {
             totalBolosLoja += bolosRegular[bolo] || 0;
         });
 
-        return { 
+        const knownRegularBolos = new Set([
+            ...bolosList.map(([r]) => r),
+            ...specialBolos,
+            'GANACHE 200G', 'GANACHE 100G', 'BRIGADEIRO'
+        ]);
+        const knownIfoodBolos = new Set([
+            ...bolosList.map(([, i]) => i),
+            'GANACHE 200G I', 'GANACHE 100G I'
+        ]);
+        const unknownBolos = [
+            ...Object.keys(bolosRegular).filter(n => !knownRegularBolos.has(n)).map(n => ({ name: n, qty: bolosRegular[n] })),
+            ...Object.keys(bolosIfood).filter(n => !knownIfoodBolos.has(n)).map(n => ({ name: n, qty: bolosIfood[n] }))
+        ];
+
+        return {
             result: result.join('\n'),
             stats: {
                 totalSales: totalGeral,
                 bolosLoja: totalBolosLoja,
                 bolosIfood: totalBolosIfood,
+                unknownBolos,
                 bolosGrandes: Object.keys(bolosRegular).filter(name => !name.includes('MINI') && !name.includes(' C') && !name.includes('SF') && !name.includes('TABULEIRO')).reduce((a, b) => a + (bolosRegular[b] || 0), 0),
                 bolosMini: Object.keys(bolosRegular).filter(name => name.includes('MINI')).reduce((a, b) => a + (bolosRegular[b] || 0), 0),
                 bolosC: Object.keys(bolosRegular).filter(name => name.includes(' C')).reduce((a, b) => a + (bolosRegular[b] || 0), 0),
@@ -754,20 +769,24 @@ export function parseStoreReport(text) {
             allBolos[bolo] = { qty: 0, value: 0 };
         });
 
+        const unknownBolos = [];
+
         sectionData.bolos.forEach(item => {
             const name = item.name.trim();
             let normalizedName = name;
-            
+
             if (name.startsWith('BOLO SF')) {
                 normalizedName = name.toUpperCase();
             }
             else if (name.startsWith('SF')) {
                 normalizedName = 'BOLO ' + name.toUpperCase();
             }
-            
+
             if (normalizedName in allBolos) {
                 allBolos[normalizedName].qty = Number(item.quantity) || 0;
                 allBolos[normalizedName].value = Number(item.value) || 0;
+            } else {
+                unknownBolos.push({ name: normalizedName, qty: Number(item.quantity) || 0 });
             }
         });
 
@@ -777,6 +796,8 @@ export function parseStoreReport(text) {
             if (regularName in allBolos) {
                 allBolos[regularName].qty += Number(item.quantity) || 0;
                 allBolos[regularName].value += Number(item.value) || 0;
+            } else {
+                unknownBolos.push({ name, qty: Number(item.quantity) || 0 });
             }
         });
 
@@ -868,10 +889,14 @@ export function parseStoreReport(text) {
         const totalRevenueLine = revenues.reduce((sum, val) => sum + val, 0).toFixed(2);
         result += totalRevenueLine + '\n' + revenues.map(v => v.toFixed(2)).join('\n');
 
+        const bolosQty = Object.values(allBolos).reduce((sum, b) => sum + (b.qty || 0), 0);
+
         return {
             result: result.trim(),
             stats: {
                 bolosTotal: bolosTotalValue,
+                bolosQty,
+                unknownBolos,
                 ...(dateStartISO && dateEndISO ? { dateRange: { start: dateStartISO, end: dateEndISO } } : {}),
                 revenue: {
                     total: revenues.reduce((sum, val) => sum + val, 0),

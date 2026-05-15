@@ -1,38 +1,5 @@
-/* Layout flexível para input + resumo lado a lado */
-
-/* NOVO LAYOUT: input-section e compact-summary ocupam 50% cada, mesma altura, 100% largura */
-.main-flex-row {
-    display: flex;
-    flex-direction: row;
-    gap: 32px;
-    align-items: stretch;
-    justify-content: stretch;
-    width: 100%;
-    min-width: 0;
-}
-
-
-
-.main-flex-row .input-section,
-.main-flex-row .compact-summary {
-    flex: 1 1 0;
-    min-width: 0;
-    width: 100%;
-    margin: 0;
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 2px 16px 0 rgb(16 185 129 / 0.07);
-    padding: 32px;
-    display: flex;
-    flex-direction: column;
-    justify-content: stretch;
-    height: 400px; /* altura fixa e igual para ambas */
-    box-sizing: border-box;
-}
-
 /* Padronização dos títulos das seções principais */
-.input-section-title,
-.compact-summary h4 {
+.input-section-title {
     margin: 0 0 18px 0 !important;
     font-size: 1.13rem !important;
     color: #263238 !important;
@@ -42,132 +9,6 @@
     letter-spacing: 0.01em;
 }
 
-/* Garante que input-section tenha a mesma altura da compact-summary */
-.main-flex-row .input-section {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: stretch;
-}
-
-@media (max-width: 900px) {
-    .main-flex-row {
-        flex-direction: column;
-        gap: 18px;
-    }
-    .main-flex-row .input-section,
-    .main-flex-row .compact-summary {
-        max-width: 100%;
-        min-width: 0;
-        width: 100%;
-        height: auto;
-    }
-}
-.compact-summary {
-    padding: 0;
-    max-width: none;
-    margin: 0;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: stretch;
-        /* Alinhamento dos títulos dos boxes */
-    .input-section-title, .compact-summary h4 {
-        margin: 0 0 18px 0;
-        font-size: 1.13rem;
-        color: #263238;
-        font-weight: 600;
-        align-self: flex-start;
-        padding: 0;
-    }
-}
-
-.summary-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    font-size: 1.08rem;
-    background: #fff;
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 2px 16px 0 rgb(16 185 129 / 0.07);
-}
-.summary-table th {
-    color: #222;
-    font-size: 1.08rem;
-    font-weight: 700;
-    background: #fff;
-    border: none;
-    padding: 16px 12px;
-    text-align: center;
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid #ececec;
-}
-.summary-table td {
-    color: #222;
-    font-size: 1.08rem;
-    border: none;
-    padding: 18px 12px;
-    background: #fff;
-    text-align: center;
-    vertical-align: middle;
-    transition: background 0.2s;
-}
-.summary-table tbody tr:nth-child(even) td {
-    background: #fff;
-}
-.summary-table tbody tr:hover td {
-    background: #fff;
-    cursor: pointer;
-}
-.summary-table tr:first-child th:first-child {
-    border-top-left-radius: 18px;
-}
-.summary-table tr:first-child th:last-child {
-    border-top-right-radius: 18px;
-}
-.summary-table tr:last-child td:first-child {
-    border-bottom-left-radius: 18px;
-}
-.summary-table tr:last-child td:last-child {
-    border-bottom-right-radius: 18px;
-}
-.summary-total-row td {
-    font-weight: 800;
-    color: #222;
-    background: #fff;
-    font-size: 1.18rem;
-    border-top: 2px solid #ececec;
-    box-shadow: none;
-    letter-spacing: 0.5px;
-}
-
-/* Destaque para totais de bolos vendidos por loja */
-#summary-loja, #summary-quiosque {
-    font-weight: 700;
-    color: #222;
-    font-size: 1.08rem;
-    background: #fff;
-    padding: 2px 10px;
-    border-radius: 8px;
-    margin-right: 4px;
-}
-
-#summary-total {
-    font-weight: 900;
-    color: #222;
-    font-size: 1.18rem;
-    background: #fff;
-    padding: 4px 16px;
-    border-radius: 12px;
-    box-shadow: none;
-    margin-right: 4px;
-}
-.summary-value.small {
-    font-size: 0.92em;
-    color: #888;
-    font-weight: 400;
-}
 /* Card visual padrão para seções */
 .card-section {
     background: var(--card-bg);
@@ -425,164 +266,72 @@ textarea {
     to { opacity: 0; }
 }
 
-#error {
-    color: #dc2626;
-    background: #fee2e2;
-    padding: 12px 16px;
+.alert {
+    display: none;
+    padding: 10px 14px;
     border-radius: 8px;
-    display: none;
-    margin: 16px 0;
-    font-size: 14px;
-}
-
-.unknown-bolos {
-    color: #9a3412;
-    background: #ffedd5;
-    padding: 12px 16px;
-    border-radius: 8px;
-    display: none;
-    margin: 16px 0;
-    font-size: 14px;
-}
-
-.dashboard {
-    display: none;
-    margin-top: 32px;
-    /* Removed grid layout as we only have one column now */
-    flex-direction: column;
-    gap: 24px;
-}
-
-.dashboard-date {
-    font-size: 1.1rem;
+    border-left: 4px solid transparent;
+    font-size: 13px;
     font-weight: 500;
-    color: var(--text);
-    margin-bottom: 1rem;
-    text-align: center;
+    margin: 12px 0 0;
+    line-height: 1.5;
 }
 
-/* Removed .dashboard-main and .dashboard-grid styles as they are no longer used */
-
-.metric-card {
-    padding: 16px;
-    border-radius: 8px;
-    background: var(--bg);
-    border: 1px solid var(--border);
+.alert-error {
+    color: #b91c1c;
+    background: #fef2f2;
+    border-left-color: #dc2626;
 }
 
-.metric-title {
-    font-size: 14px;
-    color: var(--text);
-    opacity: 0.8;
-    margin-bottom: 8px;
+.alert-warning {
+    color: #92400e;
+    background: #fffbeb;
+    border-left-color: #f59e0b;
 }
 
-.metric-value {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--text);
+.bolos-summary {
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 16px;
 }
 
-.dashboard-section {
-    margin-top: 24px;
-}
-
-.dashboard-date {
-    font-size: 0.95rem;
-    color: var(--text);
-    opacity: 0.9;
-    margin-bottom: 16px;
-}
-
-.dashboard-section h4 {
-    font-size: 1rem;
-    font-weight: 500;
-    margin: 0 0 16px 0;
-    color: var(--text);
-}
-
-.metric-card.highlight {
-    border: 2px solid var(--primary);
-    background: white;
-}
-
-.metric-card.small {
-    padding: 12px;
-}
-
-.metric-card.small .metric-value {
-    font-size: 20px;
-}
-
-.revenue-section {
-    background: var(--card-bg);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-    box-sizing: border-box;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-
-.revenue-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-}
-
-.revenue-header h4 {
-    margin: 0;
-}
-
-.chevron-icon {
-    transition: transform 0.3s ease;
-    color: var(--text);
-    opacity: 0.6;
-}
-
-.revenue-section.collapsed .chevron-icon {
-    transform: rotate(-90deg);
-}
-
-.revenue-content {
-    max-height: 1000px; /* Arbitrary large height */
-    overflow: hidden;
-    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, margin-top 0.3s ease;
-    opacity: 1;
-    margin-top: 1rem;
-}
-
-.revenue-section.collapsed .revenue-content {
-    max-height: 0;
-    opacity: 0;
-    margin-top: 0;
-}
-
-.revenue-grid {
+.bolos-summary.visible {
     display: grid;
-    gap: 12px;
 }
 
-.revenue-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    background: var(--bg);
-    border-radius: 6px;
+.bolos-cell {
+    background: var(--card-bg);
     border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 12px 12px;
+    text-align: center;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06);
 }
 
-.revenue-total {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 2px solid var(--border);
+.bolos-cell-total {
+    border-color: var(--primary);
+}
+
+.bolos-label {
+    font-size: 11px;
     font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+    opacity: 0.55;
+    margin-bottom: 6px;
+}
+
+.bolos-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+}
+
+.bolos-cell-total .bolos-value {
+    color: var(--primary);
 }
 
 .negative {
@@ -813,11 +562,11 @@ textarea {
 /* Novas Estilizações para a Seção de Input Único e Badge de Detecção */
 .input-section {
     background: var(--card-bg);
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    max-width: 100%;
-    margin: 0 auto 24px auto;
+    padding: 32px;
+    border-radius: 18px;
+    box-shadow: 0 2px 16px 0 rgb(16 185 129 / 0.07);
+    display: flex;
+    flex-direction: column;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
@@ -902,6 +651,9 @@ textarea {
     max-width: 1200px;
     margin: 0 auto;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
 
 /* Side Links (Pill) - Default for Desktop (Top Right) */
@@ -913,8 +665,8 @@ textarea {
     overflow: hidden;
     box-shadow: var(--shadow);
     position: absolute;
-    top: -82px; /* Aligned with theme toggle */
-    right: 80px; /* Give space for theme toggle */
+    top: -82px;
+    right: 0;
     height: 36px; /* Match theme toggle height */
     align-items: center;
     transition: background-color 0.3s ease, border-color 0.3s ease;
@@ -940,65 +692,18 @@ textarea {
     border-left: 1px solid var(--border);
 }
 
-/* Revenue Table Styles */
-.revenue-table-wrapper {
-    overflow-x: auto;
-    margin-top: 1rem;
-}
-
-.revenue-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-}
-
-.revenue-table th,
-.revenue-table td {
-    padding: 0.75rem;
-    text-align: right;
-    border-bottom: 1px solid var(--border);
-}
-
-.revenue-table th:first-child,
-.revenue-table td:first-child {
-    text-align: left;
-    font-weight: 500;
-}
-
-.revenue-table th {
-    background-color: var(--bg);
-    color: var(--text);
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-.revenue-table tr:last-child td {
-    border-bottom: none;
-}
-
-.revenue-table .row-total td {
-    font-weight: 700;
-    background-color: var(--bg);
-    border-top: 2px solid var(--border);
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-
-.revenue-table .row-acrescimo td {
-    color: var(--green-text);
-}
-
-.revenue-table .row-desconto td {
-    color: #ef4444; /* Red for discounts */
-}
-
 @media (max-width: 768px) {
-    .revenue-table th,
-    .revenue-table td {
-        padding: 0.5rem;
-        font-size: 0.8rem;
+    .bolos-value {
+        font-size: 22px;
+    }
+}
+
+/* Abaixo de 1100px: side-links fica no fluxo normal */
+@media (max-width: 1099px) {
+    .side-links {
+        position: static;
+        align-self: center;
+        width: fit-content;
     }
 }
 
@@ -1043,28 +748,9 @@ textarea {
         height: 48px;
     }
 
-    /* Ensure side-links (pill) is centered on mobile and moved below input section */
-    .side-links {
-        position: static; /* Reset absolute positioning */
-        order: 3; /* Move to bottom of flex container */
-        align-self: center;
-        width: fit-content;
-        margin-top: 16px;
-        margin-bottom: 0;
-    }
-
-    /* Reorder content wrapper for mobile */
-    .content-wrapper {
-        display: flex;
-        flex-direction: column;
-    }
-
     .input-section {
-        order: 1;
-        margin-bottom: 16px;
-        width: 100%; /* Force full width */
-        box-sizing: border-box; /* Include padding in width */
-        padding: 16px; /* Match summary section padding */
+        padding: 16px;
+        border-radius: 12px;
     }
     
     .top-bar-right {
@@ -1129,12 +815,10 @@ textarea {
     .paste-button {
         width: 100%;
         justify-content: center;
-        border-radius: 12px;
     }
 
     .button {
         width: 100%;
-        border-radius: 12px;
         justify-content: center;
     }
 
@@ -1205,10 +889,9 @@ textarea {
     }
     
     /* Erros e notificações */
-    #error, .unknown-bolos {
-        font-size: 13px;
-        padding: 10px 12px;
-        margin: 12px 0;
+    .alert {
+        font-size: 12px;
+        padding: 8px 10px;
     }
 }
 
@@ -1282,21 +965,6 @@ textarea:focus {
     box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1); /* Light green shadow matching --green-hover */
 }
 
-/* Ensure table cells don't break lines */
-.revenue-table td {
-    white-space: nowrap;
-}
-
-/* Adjust font size on smaller screens to fit table */
-@media (max-width: 480px) {
-    .revenue-table {
-        font-size: 0.75rem;
-    }
-    .revenue-table th,
-    .revenue-table td {
-        padding: 0.4rem;
-    }
-}
 
 /* Theme Toggle Button */
 .theme-toggle {
@@ -1346,13 +1014,8 @@ body.dark-mode textarea {
 }
 
 body.dark-mode .metric-card,
-body.dark-mode .metric-card.highlight,
-body.dark-mode .revenue-section {
+body.dark-mode .metric-card.highlight {
     background: var(--card-bg);
-}
-
-body.dark-mode .revenue-item {
-    background: var(--bg);
 }
 
 /* Dark Mode Button Overrides */
@@ -1407,6 +1070,3 @@ body.dark-mode .theme-toggle {
     color: #e5e7eb;
 }
 
-body.dark-mode .revenue-table .row-acrescimo td {
-    color: #4ade80; /* Lighter green for dark mode */
-}

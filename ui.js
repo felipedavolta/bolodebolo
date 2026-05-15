@@ -14,11 +14,28 @@ const previewLoja = document.getElementById('preview-loja');
 const errorDiv = document.getElementById('error');
 const unknownBolosDiv = document.getElementById('unknown-bolos');
 
-// State for revenue comparison
-const revenueState = {
+// Bolos summary state
+const bolosState = {
     loja: null,
     quiosque: null
 };
+
+// Unknown bolos state per store
+const unknownState = {
+    loja: [],
+    quiosque: []
+};
+
+function updateUnknownAlert() {
+    const all = [...unknownState.loja, ...unknownState.quiosque];
+    if (all.length > 0) {
+        const lista = all.map(b => `${b.name} (${b.qty})`).join(', ');
+        unknownBolosDiv.textContent = `Não reconhecidos: ${lista}`;
+        unknownBolosDiv.style.display = 'block';
+    } else {
+        unknownBolosDiv.style.display = 'none';
+    }
+}
 
 // Helper functions
 function getButtonDefaultText(button) {
@@ -106,148 +123,26 @@ function resetButtonToReady(button) {
     button.classList.add('button-ready');
 }
 
-function updateRevenueTable() {
-    const tbody = document.getElementById('revenue-table-body');
-    if (!tbody) return;
+function updateBolosSummary() {
+    const summary = document.getElementById('bolos-summary');
+    if (!summary) return;
 
-    const categories = [
-        { id: 'total', label: 'TOTAL', isTotal: true },
-        { id: 'bebidas', label: 'BEBIDAS' },
-        { id: 'alimentos', label: 'ALIMENTOS' },
-        { id: 'bolos', label: 'BOLO' },
-        { id: 'artigos', label: 'ARTIGOS FESTA' },
-        { id: 'fatias', label: 'FATIAS' },
-        { id: 'acrescimo', label: 'ACRÉSCIMO', isAcrescimo: true },
-        { id: 'desconto', label: 'DESCONTOS', isDesconto: true }
-    ];
+    const loja = bolosState.loja ?? null;
+    const quiosque = bolosState.quiosque ?? null;
 
-    const formatCurrency = (val) => {
-        const num = Number(val || 0);
-        return `R$ ${num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    };
-
-    let html = '';
-
-    categories.forEach(cat => {
-        const lojaVal = revenueState.loja ? (revenueState.loja[cat.id] || 0) : 0;
-        const quiosqueVal = revenueState.quiosque ? (revenueState.quiosque[cat.id] || 0) : 0;
-        
-        // For discounts, we want to show them as negative in the total calculation if they are positive numbers in the object
-        // But usually they are stored as negative or positive depending on parser.
-        // In parsers.js:
-        // Loja: desconto is positive number.
-        // Quiosque: desconto is positive number.
-        // Total calculation subtracts them.
-        // Let's display them as is, but handle total column correctly.
-        
-        let totalVal = 0;
-        if (cat.id === 'desconto') {
-             // If both are positive representing discount amount, total discount amount is sum.
-             totalVal = lojaVal + quiosqueVal;
-        } else {
-             totalVal = lojaVal + quiosqueVal;
-        }
-
-        let rowClass = '';
-        if (cat.isTotal) rowClass = 'row-total';
-        else if (cat.isAcrescimo) rowClass = 'row-acrescimo';
-        else if (cat.isDesconto) rowClass = 'row-desconto';
-
-        html += `
-            <tr class="${rowClass}">
-                <td>${cat.label}</td>
-                <td>${formatCurrency(lojaVal)}</td>
-                <td>${formatCurrency(quiosqueVal)}</td>
-                <td>${formatCurrency(totalVal)}</td>
-            </tr>
-        `;
-    });
-
-    tbody.innerHTML = html;
-
-    // Ensure dashboard is visible when table is updated
-    const dashboard = document.querySelector('.dashboard');
-    if (dashboard) {
-        dashboard.style.display = 'grid';
+    if (loja === null && quiosque === null) {
+        summary.classList.remove('visible');
+        return;
     }
+
+    document.getElementById('bolos-barra').textContent = loja !== null ? loja : '—';
+    document.getElementById('bolos-millennium').textContent = quiosque !== null ? quiosque : '—';
+    document.getElementById('bolos-total').textContent = (loja ?? 0) + (quiosque ?? 0);
+    summary.classList.add('visible');
 }
 
 function clearDashboard() {
-    // Only clear revenue state if explicitly needed, but for now we keep it for comparison.
-    // We might want to clear the date though?
-    document.getElementById('report-date').textContent = '';
-    
-    revenueState.loja = revenueState.loja || null;
-    revenueState.quiosque = revenueState.quiosque || null;
-    
-    updateRevenueTable();
-}
-
-function updateDashboard(stats) {
-    if (!stats) return;
-    
-    const dateDiv = document.getElementById('report-date');
-    if (stats.dateRange) {
-        const { start, end } = stats.dateRange;
-        if (start === end) {
-            const date = new Date(start);
-            dateDiv.textContent = date.toLocaleDateString('pt-BR', { 
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            });
-        } else {
-            dateDiv.textContent = `Período: ${new Date(start).toLocaleDateString('pt-BR')} a ${new Date(end).toLocaleDateString('pt-BR')}`;
-        }
-    } else {
-        dateDiv.textContent = '';
-    }
-    
-    // Removed metric updates as elements were removed from HTML
-    // Revenue update is now handled by updateRevenueTable called separately
-}
-
-function updateSummaryTotal() {
-    function parseBolosCount(str) {
-        const match = (str || '').match(/(\d+)/);
-        return match ? parseInt(match[1], 10) : 0;
-    }
-
-    const loja = parseBolosCount(document.getElementById('summary-loja').textContent);
-    const quiosque = parseBolosCount(document.getElementById('summary-quiosque').textContent);
-    
-    const totalBolos = loja + quiosque;
-
-    function parseCurrencyFlexible(str) {
-        const s = str || '';
-        const m = s.match(/(\d{1,3}(?:[.,]\d{3})*[.,]\d{2}|\d+(?:[.,]\d{2})?)(?!.*\d)/);
-        if (!m) return 0;
-        const num = m[1];
-        if (num.includes(',') && num.includes('.')) {
-            return parseFloat(num.replace(/\./g, '').replace(',', '.')) || 0;
-        }
-        if (num.includes(',')) {
-            return parseFloat(num.replace(',', '.')) || 0;
-        }
-        return parseFloat(num) || 0;
-    }
-    const lojaValor = parseCurrencyFlexible(document.getElementById('summary-loja-valor').textContent);
-    const quiosqueValor = parseCurrencyFlexible(document.getElementById('summary-quiosque-valor').textContent);
-    const totalValor = lojaValor + quiosqueValor;
-
-    document.getElementById('summary-total').textContent = `${totalBolos} bolos`;
-    document.getElementById('summary-valor-total').textContent = `R$ ${totalValor.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-}
-
-function updateSummaryItemOpacity(elementId, count, value) {
-    const element = document.getElementById(elementId);
-    if (!element) return;
-    const item = element.parentElement;
-    if (count === 0 && value === 0) {
-        item.classList.add('empty');
-    } else {
-        item.classList.remove('empty');
-    }
+    updateBolosSummary();
 }
 
 let badgeTimeout;
@@ -295,7 +190,6 @@ function detectStore(text) {
 
 async function processInputMain(autoCopy = false) {
     errorDiv.style.display = 'none';
-    unknownBolosDiv.style.display = 'none';
     clearDashboard();
     
     // Check if we have stored data and enable buttons accordingly
@@ -319,26 +213,16 @@ async function processInputMain(autoCopy = false) {
 
     const storeType = detectStore(text);
 
-    console.log('[DEBUG] Tipo detectado:', storeType);
     if (storeType === 'quiosque') {
         updateDetectionBadge('success', 'Detectado: Shopping Millennium', 3000);
-        try {
-            processQuiosqueLogic(text, autoCopy);
-        } catch (e) {
-            console.error('[DEBUG] Erro Millennium:', e);
-        }
+        processQuiosqueLogic(text, autoCopy);
     } else if (storeType === 'loja') {
         updateDetectionBadge('success', 'Detectado: Barra Olímpica', 3000);
-        try {
-            processLojaLogic(text, autoCopy);
-        } catch (e) {
-            console.error('[DEBUG] Erro Barra Olímpica:', e);
-        }
+        processLojaLogic(text, autoCopy);
     } else {
         updateDetectionBadge('error', 'Formato desconhecido');
         errorDiv.textContent = 'Não foi possível identificar o relatório. Verifique se copiou todo o conteúdo.';
         errorDiv.style.display = 'block';
-        console.warn('[DEBUG] Texto não identificado:', text);
     }
 }
 
@@ -359,39 +243,19 @@ async function processQuiosqueLogic(text, autoCopy) {
         let totalBolos = 0;
         let totalBolosIf = 0;
         let totalFaturado = 0;
-        if (stats) {
-            totalBolos = stats.bolosLoja || 0;
-            totalBolosIf = stats.bolosIfood || 0;
-            totalFaturado = stats.revenue.total || 0;
-        }
-
         if (result && stats) {
             previewQuiosque.textContent = result;
-            updateDashboard(stats);
-            
-            // Update revenue state for Quiosque
-            if (stats.revenue) {
-                revenueState.quiosque = stats.revenue;
-                updateRevenueTable();
-            }
+            bolosState.quiosque = (stats.bolosLoja || 0) + (stats.bolosIfood || 0);
+            updateBolosSummary();
 
-            document.getElementById('summary-quiosque').textContent = `${totalBolos + totalBolosIf} bolos`;
-            document.getElementById('summary-quiosque-ifood').textContent = `(${totalBolosIf} iFood)`;
-            document.getElementById('summary-quiosque-valor').textContent = `R$ ${totalFaturado.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-
-            updateSummaryItemOpacity('summary-quiosque', totalBolos + totalBolosIf, totalFaturado);
-            updateSummaryTotal();
-            
             highlightCopyButton(copyButtonQuiosque);
 
             if (autoCopy) {
                 await copyText(result, copyButtonQuiosque);
             }
 
-            if (stats.unknownBolos?.length > 0) {
-                unknownBolosDiv.textContent = `Novo(s) sabor(es) identificado(s): ${stats.unknownBolos.join(', ')}. Não contabilizado(s) no resultado.`;
-                unknownBolosDiv.style.display = 'block';
-            }
+            unknownState.quiosque = stats.unknownBolos || [];
+            updateUnknownAlert();
         } else {
             throw new Error('Falha ao processar dados do Millennium');
         }
@@ -417,72 +281,19 @@ async function processLojaLogic(text, autoCopy) {
 
         const { result, stats } = parseStoreReport(text);
 
-        let totalBolos = 0;
-        let totalBolosIf = 0;
-        let totalFaturado = 0;
-
-        if (result) {
-            const resultLines = result.split('\n');
-            for (let i = 0; i < 39 && i < resultLines.length; i++) {
-                const value = parseInt(resultLines[i]) || 0;
-                totalBolos += value;
-            }
-
-            const ifoodMatch = text.match(/ BOLOS IFOOD\n([\s\S]*?)(?=\n \w|$)/);
-            if (ifoodMatch) {
-                const ifoodLines = ifoodMatch[1].split('\n');
-                ifoodLines.forEach(line => {
-                    if (line.includes('Quantidade:')) {
-                        const qtyMatch = line.match(/Quantidade: ([\d,]+)/);
-                        if (qtyMatch) {
-                            totalBolosIf += parseFloat(qtyMatch[1].replace(',', '.')) || 0;
-                        }
-                    }
-                });
-            }
-        }
-
-        if (stats && stats.revenue && stats.revenue.total !== undefined) {
-            totalFaturado = stats.revenue.total;
-        } else {
-            const vendaMatch = text.match(/Vendas:([\d.,]+)/);
-            if (vendaMatch) {
-                totalFaturado = parseFloat(vendaMatch[1].replace('.', '').replace(',', '.'));
-                
-                const acrescimoMatch = text.match(/Acréscimo:([\d.,]+)/);
-                if (acrescimoMatch) {
-                    totalFaturado += parseFloat(acrescimoMatch[1].replace('.', '').replace(',', '.'));
-                }
-            }
-        }
-
         if (result && stats) {
             previewLoja.textContent = result;
-            updateDashboard(stats);
+            bolosState.loja = stats.bolosQty || 0;
+            updateBolosSummary();
 
-            // Update revenue state for Loja
-            if (stats.revenue) {
-                revenueState.loja = stats.revenue;
-                updateRevenueTable();
-            }
-
-            document.getElementById('summary-loja').textContent = `${totalBolos} bolos`;
-            document.getElementById('summary-loja-ifood').textContent = `(${totalBolosIf} iFood)`;
-            document.getElementById('summary-loja-valor').textContent = `R$ ${totalFaturado.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-
-            updateSummaryItemOpacity('summary-loja', totalBolos, totalFaturado);
-            updateSummaryTotal();
-            
             highlightCopyButton(copyButtonLoja);
 
             if (autoCopy) {
                 await copyText(result, copyButtonLoja);
             }
 
-            if (stats.unknownBolos?.length > 0) {
-                unknownBolosDiv.textContent = `Novo(s) sabor(es) identificado(s): ${stats.unknownBolos.join(', ')}. Não contabilizado(s) no resultado.`;
-                unknownBolosDiv.style.display = 'block';
-            }
+            unknownState.loja = stats.unknownBolos || [];
+            updateUnknownAlert();
         } else {
             throw new Error('Falha ao processar dados da Barra Olímpica');
         }
@@ -562,22 +373,10 @@ function setupThemeToggle() {
     });
 }
 
-function setupRevenueToggle() {
-    const revenueHeader = document.querySelector('.revenue-header');
-    const revenueSection = document.querySelector('.revenue-section');
-    
-    if (revenueHeader && revenueSection) {
-        revenueHeader.addEventListener('click', () => {
-            revenueSection.classList.toggle('collapsed');
-        });
-    }
-}
-
 export function init() {
     document.removeEventListener('paste', null);
 
     setupThemeToggle();
-    setupRevenueToggle();
 
     copyButtonLoja.addEventListener('click', () => {
         const resultToCopy = previewLoja.textContent;
@@ -618,7 +417,7 @@ export function init() {
 
     textareaMain.addEventListener('paste', () => {
         setTimeout(() => {
-            processInputMain(true);
+            processInputMain(false);
         }, 50);
     });
 
@@ -642,6 +441,4 @@ export function init() {
         textareaMain.select();
     });
     
-    // Initialize empty table
-    updateRevenueTable();
 }
