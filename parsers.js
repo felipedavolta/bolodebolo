@@ -322,11 +322,63 @@ export function processSalesReport(text) {
             faturamentoFatias = extractSectionValue(text, 'FATIA') || extractSectionValue(text, 'FATIAS');
         }
         
-        const acrescimoMatchVal = text.match(/Valor\s+total\s+de\s+acr[ée]scimo\s+de\s+pedidos[^\d]+([\d.,]+)/i);
-        faturamentoAcrescimo = acrescimoMatchVal ? parseValue(acrescimoMatchVal[1]) : 0;
-        
-        const descontoMatchVal = text.match(/Valor\s+total\s+de\s+desconto\s+de\s+pedidos[^\d]+([\d.,]+)/i);
-        faturamentoDesconto = descontoMatchVal ? parseValue(descontoMatchVal[1]) : 0;
+        // O PDF às vezes exporta todos os rótulos de "Totalizadores Gerais" concatenados
+        // numa única linha seguida dos valores em linhas separadas. Detectamos esse formato
+        // e extraímos posicionalmente em vez de usar regex que atravessa a linha inteira.
+        function extractTotalizadoresAcrescimoDesconto(t) {
+            const lines = t.split(/\r?\n/);
+            for (let i = 0; i < lines.length; i++) {
+                if (!lines[i].includes('Totalizadores Gerais')) continue;
+
+                let j = i + 1;
+                while (j < lines.length && !lines[j].trim()) j++;
+                if (j >= lines.length) break;
+
+                const line = lines[j].trim();
+                const isConcatenated =
+                    line.includes('Valor total de produtos vendidos') &&
+                    /acr[ée]scimo/i.test(line) &&
+                    /desconto/i.test(line);
+
+                if (isConcatenated) {
+                    // Formato concatenado: o valor da linha é "produtos vendidos";
+                    // acréscimo está na próxima linha numérica, desconto na seguinte.
+                    const numericValues = [];
+                    for (let k = j + 1; k < lines.length && numericValues.length < 4; k++) {
+                        const l = lines[k].trim();
+                        if (!l) continue;
+                        if (/^[\d.,]+$/.test(l)) {
+                            numericValues.push(parseValue(l));
+                        } else {
+                            break;
+                        }
+                    }
+                    return { acrescimo: numericValues[0] || 0, desconto: numericValues[1] || 0, found: true };
+                }
+
+                // Formato normal: cada rótulo na sua própria linha com o valor ao lado
+                let acrescimo = 0, desconto = 0;
+                for (let k = j; k < lines.length; k++) {
+                    const l = lines[k].trim();
+                    if (/impresso em|página|totalizadores de impostos/i.test(l)) break;
+                    if (/acr[ée]scimo\s+de\s+pedidos/i.test(l)) {
+                        const m = l.match(/([\d.,]+)\s*$/);
+                        if (m) acrescimo = parseValue(m[1]);
+                    }
+                    if (/desconto\s+de\s+pedidos/i.test(l)) {
+                        const m = l.match(/([\d.,]+)\s*$/);
+                        if (m) desconto = parseValue(m[1]);
+                    }
+                }
+                return { acrescimo, desconto, found: true };
+            }
+            return { acrescimo: 0, desconto: 0, found: false };
+        }
+
+        const totalizadoresAD = extractTotalizadoresAcrescimoDesconto(text);
+        faturamentoAcrescimo = totalizadoresAD.acrescimo;
+        faturamentoDesconto = totalizadoresAD.desconto;
+        const totalizadoresFound = totalizadoresAD.found;
         
         function extractTotalGeralAnywhere(t) {
             const m = t.match(/Total\s+Geral\s*[:\-]?\s*([\d.,]+)/i);
@@ -394,7 +446,7 @@ export function processSalesReport(text) {
             }
         }
 
-        if (faturamentoAcrescimo === 0 && faturamentoDesconto === 0) {
+        if (!totalizadoresFound && faturamentoAcrescimo === 0 && faturamentoDesconto === 0) {
             if (acrescimosDescontosText) {
                 const acrescimoVariations = ['ACRÉSCIMO', 'ACRESCIMO', 'Total de Acréscimos', 'Acréscimos', 'acréscimo', 'acrescimo'];
                 for (let variation of acrescimoVariations) {
