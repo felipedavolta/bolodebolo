@@ -235,6 +235,7 @@ function extractFaturamentoQuiosque(text, categoria) {
 
 export function processSalesReport(text) {
     try {
+        text = text.normalize('NFC');
         const bolosRegular = {};
         const bolosIfood = {};
         const result = [];
