@@ -470,7 +470,7 @@ export function processSalesReport(text) {
         
         function normalizeProductName(name) {
             if (!name) return '';
-            const n = name.trim().toUpperCase();
+            const n = name.trim().normalize('NFC').toUpperCase();
 
             if (n === 'FATIA DE BOLO' || n === 'FATIA MINI' || n === 'FATIA PROMO' || 
                 (n.includes('FATIA') && n.includes('BOLO') && !n.includes('INTEGRAL') && !n.includes('AIPIM'))) return 'FATIA DE BOLO';
